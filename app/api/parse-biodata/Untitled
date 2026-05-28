@@ -1,0 +1,145 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const apiKey = process.env.GEMINI_API_KEY;
+const GEMINI_MODEL = 'gemini-2.5-flash';
+
+const BIODATA_JSON_SCHEMA = `{
+  "fullName": "Extract full name",
+  "dateOfBirth": "Extract date of birth in YYYY-MM-DD format only, if not found leave empty",
+  "birthTime": "Extract birth time",
+  "rashi": "Extract rashi",
+  "gotra": "Extract gotra if available",
+  "birthPlace": "Extract birth place",
+  "complexion": "Extract complexion/varn",
+  "height": "Extract height",
+  "religionCaste": "Extract religion and caste",
+  "education": "Extract education",
+  "profession": "Extract profession/job and income details",
+  "fatherName": "Extract father name",
+  "fatherOccupation": "Extract father occupation",
+  "motherName": "Extract mother name",
+  "siblings": "Extract brothers/sisters information",
+  "unclesPaternal": "Extract paternal uncles",
+  "unclesMaternal": "Extract maternal uncles",
+  "relatives": "Extract relatives/surnames/villages"
+}`;
+
+function resolveMimeType(file: File): string {
+  if (file.type) return file.type;
+  const ext = file.name.split('.').pop()?.toLowerCase();
+  const map: Record<string, string> = {
+    pdf: 'application/pdf',
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    webp: 'image/webp',
+    gif: 'image/gif',
+  };
+  return (ext && map[ext]) || 'application/octet-stream';
+}
+
+function extractJsonObject(text: string): string {
+  // मार्कडाउन बॅकटिक्स किंवा अनपेक्षित मजकूर साफ करणे
+  let cleaned = text.replace(/```json/gi, '').replace(/
+```/g, '').trim();
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
+  if (start === -1 || end === -1 || end <= start) {
+    throw new Error('AI ने शुद्ध JSON स्वरूपात उत्तर दिले नाही.');
+  }
+  return cleaned.slice(start, end + 1);
+}
+
+function getResponseText(result: any): string {
+  const response = result.response;
+  const blocked = response.promptFeedback?.blockReason;
+  if (blocked) {
+    throw new Error(`सामग्री ब्लॉक झाली आहे: ${blocked}`);
+  }
+  const text = response.text();
+  if (!text?.trim()) {
+    throw new Error('AI कडून कोणतेही उत्तर मिळाले नाही.');
+  }
+  return text.trim();
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    if (!apiKey) {
+      console.error('ERROR: GEMINI_API_KEY सापडली नाही!');
+      return NextResponse.json(
+        { success: false, error: 'API Key कॉन्फिगर केलेली नाही.' },
+        { status: 500 }
+      );
+    }
+
+    const formData = await req.formData();
+    const file = formData.get('file') as File | null;
+
+    if (!file || file.size === 0) {
+      return NextResponse.json(
+        { success: false, error: 'फाईल सापडली नाही किंवा रिकामी आहे.' },
+        { status: 400 }
+      );
+    }
+
+    const mimeType = resolveMimeType(file);
+    const allowed = mimeType.startsWith('image/') || mimeType === 'application/pdf';
+    if (!allowed) {
+      return NextResponse.json(
+        { success: false, error: 'फक्त PDF किंवा इमेज (JPG, PNG) फाईल अपलोड करा.' },
+        { status: 400 }
+      );
+    }
+
+    const bytes = await file.arrayBuffer();
+    const base64Data = Buffer.from(bytes).toString('base64');
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: GEMINI_MODEL,
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.1, // अचूकतेसाठी टेम्परेचर कमी केले
+      },
+    });
+
+    const prompt = `You are an expert Marathi marriage biodata parser.
+Analyze the attached biodata document (image or PDF) and extract all fields.
+Return ONLY valid JSON matching this exact structure (use empty string "" if unknown):
+${BIODATA_JSON_SCHEMA}
+
+Rules:
+- Use Marathi for values where natural (keep degree abbreviations like BE, MBA, Software Engineer in English if present).
+- dateOfBirth must be YYYY-MM-DD or "". If text says "०७ एप्रिल १९९७" convert to "1997-04-07".
+- Do not include phone numbers inside JSON.
+- No markdown formatting — strictly raw JSON structure only.`;
+
+    const result = await model.generateContent([
+      { inlineData: { data: base64Data, mimeType } },
+      { text: prompt },
+    ]);
+
+    const responseText = getResponseText(result);
+    const parsedData = JSON.parse(extractJsonObject(responseText));
+
+    return NextResponse.json({ success: true, data: parsedData });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'बायोडाटा स्कॅन करताना एरर आला.';
+    console.error('AI Parsing Error:', error);
+
+    const userMessage = message.includes('404') || message.includes('not found')
+      ? 'AI मॉडेल उपलब्ध नाही. कृपया मॉडेलचे नाव तपासा.'
+      : message.includes('429') || message.includes('quota')
+        ? 'Gemini API मर्यादा ओलांडली. कृपया थोड्या वेळाने प्रयत्न करा.'
+        : message.includes('API key') || message.includes('API_KEY')
+          ? 'Gemini API Key चुकीची आहे. .env.local फाईल तपासा.'
+          : message;
+
+    return NextResponse.json(
+      { success: false, error: userMessage },
+      { status: 500 }
+    );
+  }
+}
