@@ -228,7 +228,7 @@ export default function Home() {
   if (!isApproved) {
     const adminMobile = "919359915379";
     const message = `नमस्कार, माझा मराठी मंगलाष्टक आयडी [${myProfileId}] हा आहे. कृपया माझे खाते मंजूर (Approve) करावे.`;
-    const whatsappUrl = `https://wa.me/${adminMobile}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${adminMobile}?text=${encodeURIComponent(message)}`;
 
     return (
       <div className={`${devanagari.className} min-h-screen bg-slate-100 flex flex-col justify-between text-gray-800`}>
