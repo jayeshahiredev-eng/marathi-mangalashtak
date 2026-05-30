@@ -26,6 +26,22 @@ export default function AuthPage() {
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
+  const [message, setMessage] = useState<{
+    text: string;
+    type: 'success' | 'error';
+  } | null>(null);
+  
+  const showMessage = (
+    text: string,
+    type: 'success' | 'error' = 'success'
+  ) => {
+    setMessage({ text, type });
+  
+    setTimeout(() => {
+      setMessage(null);
+    }, 3000);
+  };
+
   const [generatedCredentials, setGeneratedCredentials] = useState<{
     profileId: string;
     password: string;
@@ -54,8 +70,9 @@ export default function AuthPage() {
     e.preventDefault();
 
     if (whatsappNumber.length < 10) {
-      alert(
-        'कृपया १० अंकी वैध व्हॉट्सॲप नंबर टाका.'
+      showMessage(
+        'कृपया १० अंकी वैध व्हॉट्सॲप नंबर टाका.',
+        'error'
       );
       return;
     }
@@ -120,8 +137,9 @@ export default function AuthPage() {
         });
       }
     } catch (error: any) {
-      alert(
-        `नोंदणी करताना त्रुटी आली: ${error.message}`
+      showMessage(
+        `नोंदणी करताना त्रुटी आली: ${error.message}`,
+        'error'
       );
     } finally {
       setLoading(false);
@@ -138,8 +156,9 @@ export default function AuthPage() {
       !loginUsername.trim() ||
       !loginPassword
     ) {
-      alert(
-        'कृपया लॉगिन आयडी आणि पासवर्ड टाका.'
+      showMessage(
+        'कृपया लॉगिन आयडी आणि पासवर्ड टाका.',
+        'error'
       );
       return;
     }
@@ -163,14 +182,16 @@ export default function AuthPage() {
 
       if (error) throw error;
 
-      alert(
-        'लॉगइन यशस्वी झाले! 🎉'
+      showMessage(
+        'लॉगइन यशस्वी झाले! 🎉',
+        'success'
       );
 
       window.location.href = '/';
     } catch {
-      alert(
-        'लॉगिन अपयशी: आयडी किंवा पासवर्ड चुकीचा आहे.'
+      showMessage(
+        'लॉगिन अपयशी: आयडी किंवा पासवर्ड चुकीचा आहे.',
+        'error'
       );
     } finally {
       setLoading(false);
@@ -190,6 +211,18 @@ export default function AuthPage() {
         <p className="text-center text-gray-400 text-xs mb-8">
           रेशीमगाठी जुळवण्याचे हक्काचे ठिकाण
         </p>
+
+        {message && (
+  <div
+    className={`mb-5 p-3 rounded-xl text-sm font-semibold border ${
+      message.type === 'success'
+        ? 'bg-green-50 text-green-700 border-green-200'
+        : 'bg-red-50 text-red-700 border-red-200'
+    }`}
+  >
+    {message.text}
+  </div>
+)}
 
         {generatedCredentials ? (
           <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl space-y-4">

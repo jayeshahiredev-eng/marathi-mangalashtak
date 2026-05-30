@@ -34,6 +34,22 @@ export default function ProfileSetup() {
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [generatedProfileId, setGeneratedProfileId] = useState('');
 
+  const [message, setMessage] = useState<{
+    text: string;
+    type: 'success' | 'error';
+  } | null>(null);
+  
+  const showMessage = (
+    text: string,
+    type: 'success' | 'error' = 'success'
+  ) => {
+    setMessage({ text, type });
+  
+    setTimeout(() => {
+      setMessage(null);
+    }, 10000);
+  };
+
   // फॉर्म स्टेट्स
   const [formData, setFormData] = useState({
     gender: '',
@@ -143,7 +159,10 @@ export default function ProfileSetup() {
 
       if (!res.ok || !result.success) {
         const detail = result.error || `सर्व्हर एरर (${res.status})`;
-        alert(`बायोडाटा वाचता आला नाही.\n\n${detail}`);
+        showMessage(
+          `बायोडाटा वाचता आला नाही.पुन्हा प्रयत्न करा ${detail}`,
+          'error'
+        );
         return;
       }
 
@@ -155,12 +174,21 @@ export default function ProfileSetup() {
           mobileNumber: result.data.mobileNumber || prev.mobileNumber,
           address: result.data.address || prev.address, // 🌟 AI कडून आलेला पत्ता सेट केला
         }));
-        alert('बायोडाटा यशस्वीरित्या स्कॅन करून माहिती भरली गेली आहे! 🪄 कृपया एकदा तपासून घ्या.');
+        showMessage(
+          'बायोडाटा यशस्वीरित्या स्कॅन झाला! 🪄 कृपया तपासा.',
+          'success'
+        );
       } else {
-        alert('बायोडाटा वाचता आला नाही, कृपया व्यवस्थित स्पष्ट फाईल अपलोड करा.');
+        showMessage(
+          'बायोडाटा वाचता आला नाही. कृपया स्पष्ट फाईल अपलोड करा.',
+          'error'
+        );
       }
     } catch (err) {
-      alert('स्कॅनिंग दरम्यान त्रुटी आली.');
+      showMessage(
+        'स्कॅनिंग दरम्यान त्रुटी आली.',
+        'error'
+      );
     } finally {
       setScanning(false);
       e.target.value = '';
@@ -211,19 +239,100 @@ export default function ProfileSetup() {
     if (!userId) return;
 
     // 🚨 कडक मॅंडेटरी व्हॅलिडेशन चेक्स (आता मोबाईल नंबर आणि पत्त्यासह)
-    if (!previewUrl && !image) { alert("कृपया आपला प्रोफाइल फोटो अपलोड करा!"); return; }
-    if (!formData.gender) { alert("कृपया 'वर' किंवा 'वधू' प्रवर्ग निवडा!"); return; }
-    if (!formData.fullName.trim()) { alert("कृपया नाव टाका!"); return; }
-    if (!formData.mobileNumber.trim() || formData.mobileNumber.length < 10) { alert("कृपया अचूक १० अंकी मोबाईल नंबर टाका!"); return; }
-    if (!formData.address.trim()) { alert("कृपया आपला पत्ता/गाव टाका!"); return; } // 🌟 पत्ता व्हॅलिडेशन
-    if (!formData.dateOfBirth) { alert("कृपया जन्म तारीख निवडा!"); return; }
-    if (!formData.height.trim()) { alert("कृपया उंची टाका!"); return; }
-    if (!formData.religionCaste.trim()) { alert("कृपया धर्म-जात टाका!"); return; }
-    if (!formData.education.trim()) { alert("कृपया शिक्षण टाका!"); return; }
-    if (!formData.profession.trim()) { alert("कृपया नोकरी/व्यवसाय टाका!"); return; }
-    if (!formData.fatherName.trim()) { alert("कृपया वडिलांचे नाव टाका!"); return; }
-    if (!formData.fatherOccupation.trim()) { alert("कृपया वडिलांचा व्यवसाय टाका!"); return; }
-    if (!formData.motherName.trim()) { alert("कृपया आईचे नाव टाका!"); return; }
+    if (!previewUrl && !image) {
+      showMessage("कृपया आपला प्रोफाइल फोटो अपलोड करा!", "error");
+      return;
+    }
+    
+    if (!formData.gender) {
+      showMessage("कृपया 'वर' किंवा 'वधू' प्रवर्ग निवडा!", "error");
+      return;
+    }
+    
+    if (!formData.fullName.trim()) {
+      showMessage("कृपया नाव टाका!", "error");
+      return;
+    }
+    
+    if (
+      !formData.mobileNumber.trim() ||
+      formData.mobileNumber.length < 10
+    ) {
+      showMessage(
+        "कृपया अचूक १० अंकी मोबाईल नंबर टाका!",
+        "error"
+      );
+      return;
+    }
+    
+    if (!formData.address.trim()) {
+      showMessage(
+        "कृपया आपला पत्ता/गाव टाका!",
+        "error"
+      );
+      return;
+    }
+    
+    if (!formData.dateOfBirth) {
+      showMessage(
+        "कृपया जन्म तारीख निवडा!",
+        "error"
+      );
+      return;
+    }
+    
+    if (!formData.height.trim()) {
+      showMessage("कृपया उंची टाका!", "error");
+      return;
+    }
+    
+    if (!formData.religionCaste.trim()) {
+      showMessage(
+        "कृपया धर्म-जात टाका!",
+        "error"
+      );
+      return;
+    }
+    
+    if (!formData.education.trim()) {
+      showMessage(
+        "कृपया शिक्षण टाका!",
+        "error"
+      );
+      return;
+    }
+    
+    if (!formData.profession.trim()) {
+      showMessage(
+        "कृपया नोकरी/व्यवसाय टाका!",
+        "error"
+      );
+      return;
+    }
+    
+    if (!formData.fatherName.trim()) {
+      showMessage(
+        "कृपया वडिलांचे नाव टाका!",
+        "error"
+      );
+      return;
+    }
+    
+    if (!formData.fatherOccupation.trim()) {
+      showMessage(
+        "कृपया वडिलांचा व्यवसाय टाका!",
+        "error"
+      );
+      return;
+    }
+    
+    if (!formData.motherName.trim()) {
+      showMessage(
+        "कृपया आईचे नाव टाका!",
+        "error"
+      );
+      return;
+    }
 
     setLoading(true);
 
@@ -292,7 +401,10 @@ export default function ProfileSetup() {
       setShowApprovalModal(true); // 🚀 व्हॅलिडेशन आणि सेव्ह झाल्यावर पॉप-अप दाखवणे
 
     } catch (error: any) {
-      alert(`त्रुटी आली: ${error.message}`);
+      showMessage(
+        `त्रुटी आली: ${error.message}`,
+        'error'
+      );
       setLoading(false);
     }
   };
@@ -314,7 +426,10 @@ export default function ProfileSetup() {
   // 🔄 फक्त व्हॉट्सॲपवर क्लिक केल्यावरच पुढे जाता येईल, डायरेक्ट क्लोज बंद!
 
 const handleModalClose = () => {
-  alert("कृपया आधी व्हॉट्सॲपवर आयडी पाठवून खाते मंजूर करून घ्या! 🚀");
+  showMessage(
+    "कृपया आधी व्हॉट्सॲपवर आयडी पाठवा 🚀",
+    "error"
+  );
   router.push('/');
 };
   const inputClass =
@@ -335,12 +450,24 @@ const handleModalClose = () => {
           <p className="text-xs text-gray-500 font-medium">
             स्टार <span className="text-red-500 font-bold">*</span> चिन्हांकित फील्ड्स भरणे अनिवार्य आहे.
           </p>
+          {message && (
+  <div
+    className={`mx-auto mt-4 mb-2 max-w-3xl p-4 rounded-2xl border text-sm font-semibold ${
+      message.type === 'success'
+        ? 'bg-green-50 text-green-700 border-green-200'
+        : 'bg-red-50 text-red-700 border-red-200'
+    }`}
+  >
+    {message.text}
+  </div>
+)}
         </div>
 
       </div>
     </header>
 
       <main className="flex-1 w-full overflow-x-hidden">
+      
         <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-14 py-6 sm:py-8 lg:py-10 max-w-7xl mx-auto">
           {profileLoading ? (
             <div className="flex flex-col items-center justify-center py-24 text-gray-600">

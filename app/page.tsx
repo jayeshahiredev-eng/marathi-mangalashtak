@@ -47,6 +47,7 @@ const getProfileProfession = (p: Profile) => p.profession?.trim() || '—';
 const getProfileHeight = (p: Profile) => p.height?.trim() || '—';
 const getProfileRashi = (p: Profile) => p.rashi?.trim() || '—';
 
+
 export default function Home() {
   const router = useRouter();
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -54,6 +55,16 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [authChecking, setAuthChecking] = useState(true);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const showMessage = (
+    text: string,
+    type: 'success' | 'error' = 'success'
+  ) => {
+    setMessage({ text, type });
+  
+    setTimeout(() => {
+      setMessage(null);
+    }, 10000);
+  };
   
   // सुरक्षा स्टेट्स
   const [isApproved, setIsApproved] = useState<boolean>(false);
@@ -69,17 +80,31 @@ export default function Home() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [message, setMessage] = useState<{
+    text: string;
+    type: 'success' | 'error';
+  } | null>(null);
+  
+  const [confirmBox, setConfirmBox] = useState<{
+    text: string;
+    onConfirm: () => void;
+  } | null>(null);
 
   const handleLogout = async () => {
-    const confirmLogout = window.confirm("तुम्हाला नक्की लॉगआऊट करायचे आहे का?");
-    if (confirmLogout) {
-      const { error } = await supabase.auth.signOut();
-      if (!error) {
-        window.location.href = '/auth';
-      } else {
-        alert("लॉगआऊट करताना त्रुटी आली.");
-      }
-    }
+    setConfirmBox({
+      text: "तुम्हाला नक्की लॉगआऊट करायचे आहे का?",
+      onConfirm: async () => {
+        const { error } = await supabase.auth.signOut();
+  
+        if (!error) {
+          window.location.href = '/auth';
+        } else {
+          showMessage("लॉगआऊट करताना त्रुटी आली.", "error");
+        }
+  
+        setConfirmBox(null);
+      },
+    });
   };
 
   // 🚨 कडक सुरक्षा आणि रिडायरेक्शन लॉजिक
@@ -290,6 +315,45 @@ export default function Home() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
+      {message && (
+  <div className="max-w-3xl mx-auto px-4 mb-4">
+    <div
+      className={`p-4 rounded-2xl border text-sm font-semibold ${
+        message.type === 'success'
+          ? 'bg-green-50 text-green-700 border-green-200'
+          : 'bg-red-50 text-red-700 border-red-200'
+      }`}
+    >
+      {message.text}
+    </div>
+  </div>
+)}
+
+{confirmBox && (
+  <div className="max-w-3xl mx-auto px-4 mb-4">
+    <div className="bg-white border border-orange-200 rounded-2xl p-5 shadow-md text-center">
+      <p className="text-sm font-semibold text-gray-800 mb-4">
+        {confirmBox.text}
+      </p>
+
+      <div className="flex justify-center gap-3">
+        <button
+          onClick={() => confirmBox.onConfirm()}
+          className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-xl text-sm font-bold"
+        >
+          हो
+        </button>
+
+        <button
+          onClick={() => setConfirmBox(null)}
+          className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2 rounded-xl text-sm font-bold"
+        >
+          नाही
+        </button>
+      </div>
+    </div>
+  </div>
+)}
         {/* फिल्टर सेक्शन */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8 space-y-4">
           <div className="w-full">
@@ -327,7 +391,10 @@ export default function Home() {
             <button
               onClick={async () => {
                 if (!showFavoritesOnly && favorites.length === 0) {
-                  alert("तुम्ही अजून कोणतेही प्रोफाइल सेव्ह केलेले नाही.");
+                  showMessage(
+                    "तुम्ही अजून कोणतेही प्रोफाइल सेव्ह केलेले नाही.",
+                    "error"
+                  );
                   return;
                 }
                 setShowFavoritesOnly(!showFavoritesOnly);
@@ -395,7 +462,6 @@ export default function Home() {
                   <p>🕉️ <strong>धर्म-जात:</strong> {getProfileCaste(profile)}</p>
                   <p>🎓 <strong>शिक्षण:</strong> {getProfileEducation(profile)}</p>
                   <p>💼 <strong>व्यवसाय:</strong> {getProfileProfession(profile)}</p>
-                  <p>📍 <strong>ठिकाण:</strong> {getProfileCity(profile)}</p>
                 </div>
               </div>
 

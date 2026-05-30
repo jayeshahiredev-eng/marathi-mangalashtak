@@ -58,6 +58,28 @@ export default function ProfileDetails() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
+  const [message, setMessage] = useState<{
+    text: string;
+    type: 'success' | 'error';
+  } | null>(null);
+  
+  const showMessage = (
+    text: string,
+    type: 'success' | 'error' = 'success'
+  ) => {
+    setMessage({ text, type });
+  
+    setTimeout(() => {
+      setMessage(null);
+    }, 3000);
+  };
+
+  const [confirmBox, setConfirmBox] = useState<{
+    text: string;
+  } | null>(null);
+
+
+
   useEffect(() => {
     if (!targetProfileId) return;
 
@@ -103,51 +125,27 @@ export default function ProfileDetails() {
   // 🪙 टोकन कमी करून संपर्क अनलॉक करण्याचे मुख्य फंक्शन
   const handleUnlockContact = async () => {
     if (!myProfile || !targetProfile) return;
-    
-    // सुरक्षिततेसाठी पुन्हा एकदा प्रिमियम चेक
+  
     if (myProfile.is_premium) {
       setIsUnlocked(true);
       return;
     }
-
+  
     const currentTokens = myProfile.remaining_tokens ?? 0;
-
+  
     if (currentTokens <= 0) {
-      alert("❌ तुमचे मोफतचे ५ टोकन्स संपले आहेत! नवीन संपर्क अनलॉक करण्यासाठी प्रिमियम मेंबरशिप खरेदी करा.");
+      showMessage(
+        "❌ तुमचे ५ मोफत टोकन्स संपले आहेत! प्रिमियम मेंबरशिप घ्या.",
+        "error"
+      );
       return;
     }
-
-    const confirmUnlock = window.confirm(`या स्थळाची संपर्क माहिती पाहण्यासाठी १ टोकन वजा केले जाईल. (शिल्लक टोकन: ${currentTokens}). पुढे जायचे का?`);
-    if (!confirmUnlock) return;
-
-    setActionLoading(true);
-    try {
-      const updatedTokens = currentTokens - 1;
-      const updatedUnlockedContacts = [...(myProfile.unlocked_contacts || []), targetProfile.id];
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          remaining_tokens: updatedTokens,
-          unlocked_contacts: updatedUnlockedContacts
-        })
-        .eq('id', myProfile.id);
-
-      if (error) throw error;
-
-      // लोकल स्टेट अपडेट करणे
-      setMyProfile((prev: any) => ({
-        ...prev,
-        remaining_tokens: updatedTokens,
-        unlocked_contacts: updatedUnlockedContacts
-      }));
-      setIsUnlocked(true);
-      alert("🎉 संपर्क यशस्वीरित्या अनलॉक झाला आहे!");
-    } catch (err: any) {
-      alert("त्रुटी आली: " + err.message);
-    } finally {
-      setActionLoading(false);
-    }
+  
+    setConfirmBox({
+      text: `या स्थळाची संपर्क माहिती पाहण्यासाठी १ टोकन वजा केले जाईल. (शिल्लक टोकन: ${currentTokens}). पुढे जायचे का?`,
+    });
+  
+    return;
   };
 
   if (loading) {
@@ -256,6 +254,90 @@ export default function ProfileDetails() {
             {/* 🔒 ५. कस्टमाइज्ड पेवॉल आणि संपर्क ब्लॉक लॉजिक */}
             <div className="mt-8 border-t border-gray-100 pt-6">
               <h3 className="text-lg font-bold text-orange-600 mb-4">📞 संपर्क आणि पत्ता माहिती</h3>
+              {message && (
+  <div
+    className={`max-w-3xl mx-auto px-4 mt-4 mb-2`}
+  >
+    <div
+      className={`p-4 rounded-2xl border text-sm font-semibold ${
+        message.type === 'success'
+          ? 'bg-green-50 text-green-700 border-green-200'
+          : 'bg-red-50 text-red-700 border-red-200'
+      }`}
+    >
+      {message.text}
+    </div>
+  </div>
+)}
+
+{confirmBox && (
+  <div className="max-w-3xl mx-auto px-4 mt-4 mb-2">
+    <div className="p-4 rounded-2xl border text-sm font-semibold bg-yellow-50 text-yellow-800 border-yellow-200">
+      <div className="mb-3">
+        {confirmBox.text}
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={() => setConfirmBox(null)}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-4 py-2 rounded-xl text-xs"
+        >
+          रद्द करा
+        </button>
+
+        <button
+          onClick={async () => {
+            setConfirmBox(null);
+
+            setActionLoading(true);
+            try {
+              const updatedTokens =
+                (myProfile.remaining_tokens ?? 0) - 1;
+
+              const updatedUnlockedContacts = [
+                ...(myProfile.unlocked_contacts || []),
+                targetProfile?.id,
+              ];
+
+              const { error } = await supabase
+                .from('profiles')
+                .update({
+                  remaining_tokens: updatedTokens,
+                  unlocked_contacts: updatedUnlockedContacts,
+                })
+                .eq('id', myProfile.id);
+
+              if (error) throw error;
+
+              setMyProfile((prev: any) => ({
+                ...prev,
+                remaining_tokens: updatedTokens,
+                unlocked_contacts: updatedUnlockedContacts,
+              }));
+
+              setIsUnlocked(true);
+
+              showMessage(
+                "🎉 संपर्क यशस्वीरित्या अनलॉक झाला आहे!",
+                "success"
+              );
+            } catch (err: any) {
+              showMessage(
+                "त्रुटी आली: " + err.message,
+                "error"
+              );
+            } finally {
+              setActionLoading(false);
+            }
+          }}
+          className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-4 py-2 rounded-xl text-xs"
+        >
+          पुढे जा
+        </button>
+      </div>
+    </div>
+  </div>
+)}
               
               {isUnlocked ? (
                 <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-3 text-[15px] animate-fade-in">
