@@ -279,7 +279,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="block w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-4 px-6 rounded-xl shadow-lg transition"
             >
-              व्हॅट्सॲपवर आयडी पाठवून खाते सुरू करा 🚀
+              व्हॉट्सॲपवर आयडी पाठवून खाते सुरू करा 🚀
             </a>
             <button onClick={handleLogout} className="mt-4 text-xs font-bold text-red-500 hover:underline">
               🚪 लॉगआऊट करा
@@ -415,6 +415,7 @@ export default function Home() {
           {filteredProfiles.map((profile) => (
             <div
               key={profile.id}
+              onClick={() => router.push(`/profile/${profile.id}`)}
               className={`bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition flex flex-col justify-between border-2 ${
                 profile.is_premium ? 'border-amber-400 bg-gradient-to-b from-amber-50/20 to-white shadow-amber-100' : 'border-gray-100'
               }`}
@@ -451,9 +452,15 @@ export default function Home() {
                     <h3 className="text-base font-bold text-gray-900 tracking-tight mt-1">{getProfileName(profile)}</h3>
                   </div>
                   
-                  <button onClick={() => toggleFavorite(profile.id)} className="text-2xl hover:scale-110 transition flex-shrink-0">
-                    {favorites.includes(profile.id) ? '❤️' : '🤍'}
-                  </button>
+                  <button
+  onClick={(e) => {
+    e.stopPropagation();
+    toggleFavorite(profile.id);
+  }}
+  className="text-2xl hover:scale-110 transition flex-shrink-0"
+>
+  {favorites.includes(profile.id) ? '❤️' : '🤍'}
+</button>
                 </div>
 
                 <div className="space-y-2 text-xs text-gray-600">
