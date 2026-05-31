@@ -281,9 +281,20 @@ export default function Home() {
             >
               व्हॉट्सॲपवर आयडी पाठवून खाते सुरू करा 🚀
             </a>
-            <button onClick={handleLogout} className="mt-4 text-xs font-bold text-red-500 hover:underline">
-              🚪 लॉगआऊट करा
-            </button>
+            <button
+  onClick={async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (!error) {
+      window.location.href = "/auth";
+    } else {
+      showMessage("लॉगआऊट करताना त्रुटी आली.", "error");
+    }
+  }}
+  className="mt-4 text-xs font-bold text-red-500 hover:underline"
+>
+  🚪 लॉगआऊट करा
+</button>
           </div>
         </main>
       </div>
@@ -364,7 +375,7 @@ export default function Home() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="उदा. अमित, ID12345..."
+              placeholder="उदा. अमित, ID: 12345..."
               className="w-full p-3 text-sm bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>

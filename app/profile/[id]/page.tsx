@@ -135,7 +135,7 @@ export default function ProfileDetails() {
   
     if (currentTokens <= 0) {
       showMessage(
-        "❌ तुमचे ५ मोफत टोकन्स संपले आहेत! प्रिमियम मेंबरशिप घ्या.",
+        "❌ तुमचे ५ मोफत टोकन्स संपले आहेत! व्हॉट्सॲपवर संपर्क साधा.",
         "error"
       );
       return;

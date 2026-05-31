@@ -662,7 +662,7 @@ const handleModalClose = () => {
                 onClick={handleWhatsAppRedirect}
                 className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[16px] font-bold py-4 px-6 rounded-xl shadow-lg shadow-emerald-100 transition animate-pulse"
               >
-                <span>व्हॅट्सॲपवर आयडी पाठवून खाते सुरू करा 🚀</span>
+                <span>व्हॉट्सॲपवर आयडी पाठवून खाते सुरू करा 🚀 येथे दाबा</span>
               </button>
               
               <p className="text-[11px] text-gray-400 font-medium">
