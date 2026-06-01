@@ -267,7 +267,7 @@ export default function Home() {
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">खाते मंजुरी प्रलंबित आहे!</h3>
             <p className="text-gray-500 text-sm mb-6 leading-relaxed">
-              तुमचा बायोडाटा सुरक्षित जतन केला आहे. सुरक्षिततेसाठी ॲडमिन कडून प्रोफाईल व्हेरीफाय व्हायला २४ तास लागतात. त्वरित मंजुरीसाठी खालील बटणावर क्लिक करून तुमचा आयडी पाठवा.
+              तुमचा बायोडाटा सुरक्षित जतन केला आहे. सुरक्षिततेसाठी ॲडमिन कडून प्रोफाईल व्हेरीफाय व्हायला १५ मिनिटे लागतात. कृपया प्रतीक्षा करा.
             </p>
             <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-4 border-2 border-dashed border-orange-200 mb-6">
               <span className="block text-xs uppercase tracking-widest text-orange-600 font-bold mb-1">तुमचा प्रोफाईल आयडी</span>
