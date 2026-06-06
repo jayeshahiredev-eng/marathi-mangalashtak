@@ -160,7 +160,10 @@ export default function ProfileSetup() {
       if (!res.ok || !result.success) {
         const detail = result.error || `सर्व्हर एरर (${res.status})`;
         showMessage(
-          `बायोडाटा वाचता आला नाही.पुन्हा प्रयत्न करा ${detail}`,
+          `बायोडाटा वाचता आला नाही.
+          कृपया काही वेळाने पुन्हा प्रयत्न करा
+          किंवा खाली दिलेल्या फॉर्ममध्ये आवश्यक माहिती स्वतः भरा.
+          तुमची माहिती सुरक्षित आहे आणि काहीही हरवलेले नाही.`,
           'error'
         );
         return;
@@ -411,8 +414,20 @@ export default function ProfileSetup() {
 
   // 🌟 व्हॅलिडेशन आणि व्हॅट्सॲप रिडायरेक्शन फंक्शन
   const handleWhatsAppRedirect = () => {
-    const adminMobile = "919359915379"; // 📢 येथे तुमचा मुख्य ॲडमिन नंबर टाका (कंट्री कोडसह)
-    const message = `नमस्कार, माझा मराठी मंगलाष्टक आयडी [${generatedProfileId}] हा आहे. कृपया माझे खाते मंजूर (Approve) करावे.`;
+    const adminMobile = "919307130226"; // 📢 येथे तुमचा मुख्य ॲडमिन नंबर टाका (कंट्री कोडसह)
+    const message = `नमस्कार,
+
+माझी माहिती खालीलप्रमाणे आहे:
+
+👤 नाव: ${formData.fullName}
+📱 मोबाईल नंबर: ${formData.mobileNumber}
+🏠 पत्ता: ${formData.address}
+
+----------------------------
+
+माझा मराठी मंगलाष्टक आयडी: ${generatedProfileId}
+
+कृपया माझे खाते मंजूर (Approve) करावे.`;
     const encodedMessage = encodeURIComponent(message);
     
     // व्हॅट्सॲप ओपन करणे
@@ -535,16 +550,16 @@ const handleModalClose = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
                 <div className="sm:col-span-2 xl:col-span-1">
                   <label className={labelClass}>नाव <span className="text-red-500">*</span></label>
-                  <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                  <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="new-password"/>
                 </div>
                 <div>
                   <label className={labelClass}>मोबाईल नंबर <span className="text-red-500">*</span></label>
-                  <input type="tel" name="mobileNumber" placeholder="उदा. 98765*****" maxLength={10} value={formData.mobileNumber} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                  <input type="tel" name="mobileNumber" placeholder="उदा. 98765*****" maxLength={10} value={formData.mobileNumber} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off" />
                 </div>
                 
                 <div className="sm:col-span-2 xl:col-span-1">
                   <label className={labelClass}>पूर्ण पत्ता / सध्याचे ठिकाण (गांव, तालुका, जिल्हा) <span className="text-red-500">*</span></label>
-                  <input type="text" name="address" placeholder="उदा. मु.पो. दाभाडी, तालुका मालेगाव, जिल्हा नाशिक" value={formData.address} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                  <input type="text" name="address" placeholder="उदा. मु.पो. दाभाडी, तालुका मालेगाव, जिल्हा नाशिक" value={formData.address} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off"/>
                 </div>
                 <div>
                   <label className={labelClass}>जन्म तारीख <span className="text-red-500">*</span></label>
@@ -552,23 +567,23 @@ const handleModalClose = () => {
                 </div>
                 <div>
                   <label className={labelClass}>जन्म वेळ <span className="text-gray-400 font-medium">(ऐच्छिक)</span></label>
-                  <input type="text" name="birthTime" placeholder="उदा. दुपारी ०३:४५" value={formData.birthTime} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                  <input type="text" name="birthTime" placeholder="उदा. दुपारी ०३:४५" value={formData.birthTime} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off" />
                 </div>
                 <div>
                   <label className={labelClass}>राशी <span className="text-gray-400 font-medium">(ऐच्छिक)</span></label>
-                  <input type="text" name="rashi" placeholder="उदा. सिंह" value={formData.rashi} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                  <input type="text" name="rashi" placeholder="उदा. सिंह" value={formData.rashi} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off"/>
                 </div>
                 <div>
                   <label className={labelClass}>गोत्र <span className="text-gray-400 font-medium">(ऐच्छिक)</span></label>
-                  <input type="text" name="gotra" placeholder="उदा. भारद्वाज" value={formData.gotra} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                  <input type="text" name="gotra" placeholder="उदा. भारद्वाज" value={formData.gotra} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off"/>
                 </div>
                 <div>
                   <label className={labelClass}>वर्ण <span className="text-gray-400 font-medium">(ऐच्छिक)</span></label>
-                  <input type="text" name="complexion" placeholder="उदा. गोरा / गव्हाळ" value={formData.complexion} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                  <input type="text" name="complexion" placeholder="उदा. गोरा / गव्हाळ" value={formData.complexion} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off"/>
                 </div>
                 <div>
                   <label className={labelClass}>उंची <span className="text-red-500">*</span></label>
-                  <input type="text" name="height" placeholder="उदा. ५ फूट ६ इंच" value={formData.height} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                  <input type="text" name="height" placeholder="उदा. ५ फूट ६ इंच" value={formData.height} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off" />
                 </div>
                 <div>
                   <label className={labelClass}>धर्म-जात <span className="text-red-500">*</span></label>
@@ -580,7 +595,7 @@ const handleModalClose = () => {
                 </div>
                 <div className="sm:col-span-2 xl:col-span-2">
                   <label className={labelClass}>नोकरी/व्यवसाय आणि उत्पन्न <span className="text-red-500">*</span></label>
-                  <input type="text" name="profession" placeholder="उदा. सॉफ्टवेअर इंजिनिअर - ६ LPA" value={formData.profession} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                  <input type="text" name="profession" placeholder="उदा. सॉफ्टवेअर इंजिनिअर - ६ LPA" value={formData.profession} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off" />
                 </div>
               </div>
             </section>
@@ -594,32 +609,32 @@ const handleModalClose = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
                     <label className={labelClass}>वडिलांचे नाव <span className="text-red-500">*</span></label>
-                    <input type="text" name="fatherName" value={formData.fatherName} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                    <input type="text" name="fatherName" value={formData.fatherName} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off"/>
                   </div>
                   <div>
                     <label className={labelClass}>वडिलांचा व्यवसाय <span className="text-red-500">*</span></label>
-                    <input type="text" name="fatherOccupation" value={formData.fatherOccupation} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                    <input type="text" name="fatherOccupation" value={formData.fatherOccupation} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off"/>
                   </div>
                   <div>
                     <label className={labelClass}>आईचे नाव <span className="text-red-500">*</span></label>
-                    <input type="text" name="motherName" value={formData.motherName} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                    <input type="text" name="motherName" value={formData.motherName} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off"/>
                   </div>
                   <div>
                     <label className={labelClass}>भाऊ/बहीण <span className="text-gray-400 font-medium">(ऐच्छिक)</span></label>
-                    <input type="text" name="siblings" value={formData.siblings} onChange={handleInputChange} className={inputClass} disabled={scanning} />
+                    <input type="text" name="siblings" value={formData.siblings} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off"/>
                   </div>
                 </div>
                 <div>
                   <label className={labelClass}>काकाश्री <span className="text-gray-400 font-medium">(ऐच्छिक)</span></label>
-                  <textarea name="unclesPaternal" rows={3} onChange={handleInputChange} value={formData.unclesPaternal} className={`${inputClass} resize-y min-h-[88px]`} disabled={scanning} />
+                  <textarea name="unclesPaternal" rows={3} onChange={handleInputChange} value={formData.unclesPaternal} className={`${inputClass} resize-y min-h-[88px]`} disabled={scanning} autoComplete="off" />
                 </div>
                 <div>
                   <label className={labelClass}>मामा <span className="text-gray-400 font-medium">(ऐच्छिक)</span></label>
-                  <textarea name="unclesMaternal" rows={3} onChange={handleInputChange} value={formData.unclesMaternal} className={`${inputClass} resize-y min-h-[88px]`} disabled={scanning} />
+                  <textarea name="unclesMaternal" rows={3} onChange={handleInputChange} value={formData.unclesMaternal} className={`${inputClass} resize-y min-h-[88px]`} disabled={scanning} autoComplete="off" />
                 </div>
                 <div>
                   <label className={labelClass}>नातेसंबंध <span className="text-gray-400 font-medium">(ऐच्छिक)</span></label>
-                  <textarea name="relatives" rows={3} onChange={handleInputChange} value={formData.relatives} className={`${inputClass} resize-y min-h-[88px]`} disabled={scanning} />
+                  <textarea name="relatives" rows={3} onChange={handleInputChange} value={formData.relatives} className={`${inputClass} resize-y min-h-[88px]`} disabled={scanning} autoComplete="off" />
                 </div>
               </div>
             </section>
