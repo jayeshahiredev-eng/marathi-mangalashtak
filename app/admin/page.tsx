@@ -21,6 +21,7 @@ interface UserProfile {
   remaining_tokens: number;
   gender: string;
   created_at: string;
+  generated_username: string;
 }
 
 export default function AdminPanel() {
