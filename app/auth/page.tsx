@@ -300,7 +300,7 @@ export default function AuthPage() {
                   <input
                     type="text"
                     required
-                    placeholder="तुमचे नाव येथे टाइप करा"
+                    placeholder="इथे नाव टाका"
                     value={fullName}
                     onChange={(e) =>
                       setFullName(e.target.value)
@@ -318,7 +318,7 @@ export default function AuthPage() {
                     type="tel"
                     required
                     maxLength={10}
-                    placeholder="येथे वैध क्रमांक टाइप करा"
+                    placeholder="इथे व्हॉट्सॲप नंबर टाका"
                     value={whatsappNumber}
                     onChange={(e) =>
                       setWhatsappNumber(
@@ -355,7 +355,7 @@ export default function AuthPage() {
                   <input
                     type="text"
                     required
-                    placeholder="उदा. 54321"
+                    placeholder="तुमचा आयडी टाका"
                     value={loginUsername}
                     onChange={(e) =>
                       setLoginUsername(
