@@ -202,8 +202,8 @@ export default function ProfileSetup() {
     
     let parsedFile = e.target.files[0];
 
-    if (parsedFile.type === 'application/pdf' && parsedFile.size > 2 * 1024 * 1024) {
-      alert('⚠️ फाईल खूप मोठी आहे! कृपया २ MB पेक्षा लहान साईझची PDF अपलोड करा किंवा बायोडाटाचा फोटो (Image) अपलोड करा.');
+    if (parsedFile.type === 'application/pdf' && parsedFile.size > 30 * 1024 * 1024) {
+      showMessage('⚠️ फाईल खूप मोठी आहे! कृपया 30 MB पेक्षा लहान साईझची PDF अपलोड करा किंवा बायोडाटाचा फोटो (Image) अपलोड करा.', 'error');
       e.target.value = '';
       return;
     }
@@ -237,9 +237,9 @@ export default function ProfileSetup() {
 
       if (!res.ok || !result.success) {
         const detail = result.error || `सर्व्हर एरर (${res.status})`;
-        alert(`बायोडाटा वाचता आला नाही.
+        showMessage(`बायोडाटा वाचता आला नाही.
         कृपया काही वेळाने पुन्हा प्रयत्न करा
-         किंवा खाली दिलेल्या फॉर्ममध्ये आवश्यक माहिती स्वतः भरा.`);
+        किंवा खाली दिलेल्या फॉर्ममध्ये आवश्यक माहिती स्वतः भरा.`, 'error');
         return;
       }
 
@@ -251,12 +251,12 @@ export default function ProfileSetup() {
           mobileNumber: result.data.mobileNumber || prev.mobileNumber,
           address: result.data.address || prev.address,
         }));
-        alert('बायोडाटा यशस्वीरित्या स्कॅन करून माहिती भरली गेली आहे! 🪄 कृपया एकदा तपासून घ्या.');
+        showMessage('बायोडाटा यशस्वीरित्या स्कॅन करून माहिती भरली गेली आहे! 🪄 कृपया एकदा तपासून घ्या.', 'success');
       } else {
-        alert('बायोडाटा वाचता आला नाही, कृपया व्यवस्थित स्पष्ट फाईल अपलोड करा.');
+        showMessage('बायोडाटा वाचता आला नाही, कृपया व्यवस्थित स्पष्ट फाईल अपलोड करा.', 'error');
       }
     } catch (err) {
-      alert('स्कॅनिंग दरम्यान त्रुटी आली.');
+      showMessage('स्कॅनिंग दरम्यान त्रुटी आली.', 'error');
     } finally {
       setScanning(false);
       e.target.value = '';
