@@ -403,7 +403,7 @@ export default function Home() {
               onClick={async () => {
                 if (!showFavoritesOnly && favorites.length === 0) {
                   showMessage(
-                    "तुम्ही अजून कोणतेही प्रोफाइल सेव्ह केलेले नाही.",
+                    "तुम्ही अजून कोणतेही प्रोफाइल लाईक केलेले नाही.",
                     "error"
                   );
                   return;
