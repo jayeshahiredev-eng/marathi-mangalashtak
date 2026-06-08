@@ -140,14 +140,92 @@ export default function ProfileSetup() {
     loadSavedProfile();
   }, [router]);
 
+  // const handleBiodataParse = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (!e.target.files || e.target.files.length === 0) return;
+    
+  //   const parsedFile = e.target.files[0];
+  //   setScanning(true);
+
+  //   const apiFormData = new FormData();
+  //   apiFormData.append('file', parsedFile);
+
+  //   try {
+  //     const res = await fetch('/api/parse-biodata', {
+  //       method: 'POST',
+  //       body: apiFormData,
+  //     });
+
+  //     const result = await res.json();
+
+  //     if (!res.ok || !result.success) {
+  //       const detail = result.error || `सर्व्हर एरर (${res.status})`;
+  //       showMessage(
+  //         `बायोडाटा वाचता आला नाही.
+  //         कृपया काही वेळाने पुन्हा प्रयत्न करा
+  //         किंवा खाली दिलेल्या फॉर्ममध्ये आवश्यक माहिती स्वतः भरा.`,
+  //         'error'
+  //       );
+  //       return;
+  //     }
+
+  //     if (result.data) {
+  //       setFormData(prev => ({
+  //         ...prev,
+  //         ...result.data,
+  //         fullName: result.data.fullName?.replace(/\d+/g, '') || '',
+  //         mobileNumber: result.data.mobileNumber || prev.mobileNumber,
+  //         address: result.data.address || prev.address, // 🌟 AI कडून आलेला पत्ता सेट केला
+  //       }));
+  //       showMessage(
+  //         'बायोडाटा यशस्वीरित्या स्कॅन झाला! 🪄 कृपया तपासा.',
+  //         'success'
+  //       );
+  //     } else {
+  //       showMessage(
+  //         'बायोडाटा वाचता आला नाही. कृपया स्पष्ट फाईल अपलोड करा.',
+  //         'error'
+  //       );
+  //     }
+  //   } catch (err) {
+  //     showMessage(
+  //       'स्कॅनिंग दरम्यान त्रुटी आली.',
+  //       'error'
+  //     );
+  //   } finally {
+  //     setScanning(false);
+  //     e.target.value = '';
+  //   }
+  // };
+
   const handleBiodataParse = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     
-    const parsedFile = e.target.files[0];
+    let parsedFile = e.target.files[0];
+
+    if (parsedFile.type === 'application/pdf' && parsedFile.size > 2 * 1024 * 1024) {
+      alert('⚠️ फाईल खूप मोठी आहे! कृपया २ MB पेक्षा लहान साईझची PDF अपलोड करा किंवा बायोडाटाचा फोटो (Image) अपलोड करा.');
+      e.target.value = '';
+      return;
+    }
     setScanning(true);
 
+    // 🌟 बदल: जर अपलोड केलेली फाईल इमेज असेल, तर तिला आधी ५०० KB च्या आत कॉम्प्रेस करा!
+    if (parsedFile.type.startsWith('image/')) {
+      try {
+        const options = {
+          maxSizeMB: 0.5,       // ५०० KB च्या आत फाईल आणणे (AI साठी सुरक्षित)
+          maxWidthOrHeight: 1024,
+          useWebWorker: true,
+        };
+        parsedFile = await imageCompression(parsedFile, options);
+        console.log(`बायोडाटा इमेज यशस्वीरित्या कॉम्प्रेस केली! नवीन साईझ: ${parsedFile.size / 1024} KB`);
+      } catch (compressErr) {
+        console.error("Biodata compression error, original sending:", compressErr);
+      }
+    }
+
     const apiFormData = new FormData();
-    apiFormData.append('file', parsedFile);
+    apiFormData.append('file', parsedFile); // आता कॉम्प्रेस झालेली फाईल AI कडे जाईल
 
     try {
       const res = await fetch('/api/parse-biodata', {
@@ -159,13 +237,9 @@ export default function ProfileSetup() {
 
       if (!res.ok || !result.success) {
         const detail = result.error || `सर्व्हर एरर (${res.status})`;
-        showMessage(
-          `बायोडाटा वाचता आला नाही.
-          कृपया काही वेळाने पुन्हा प्रयत्न करा
-          किंवा खाली दिलेल्या फॉर्ममध्ये आवश्यक माहिती स्वतः भरा.
-          तुमची माहिती सुरक्षित आहे आणि काहीही हरवलेले नाही.`,
-          'error'
-        );
+        alert(`बायोडाटा वाचता आला नाही.
+        कृपया काही वेळाने पुन्हा प्रयत्न करा
+         किंवा खाली दिलेल्या फॉर्ममध्ये आवश्यक माहिती स्वतः भरा.`);
         return;
       }
 
@@ -175,23 +249,14 @@ export default function ProfileSetup() {
           ...result.data,
           fullName: result.data.fullName?.replace(/\d+/g, '') || '',
           mobileNumber: result.data.mobileNumber || prev.mobileNumber,
-          address: result.data.address || prev.address, // 🌟 AI कडून आलेला पत्ता सेट केला
+          address: result.data.address || prev.address,
         }));
-        showMessage(
-          'बायोडाटा यशस्वीरित्या स्कॅन झाला! 🪄 कृपया तपासा.',
-          'success'
-        );
+        alert('बायोडाटा यशस्वीरित्या स्कॅन करून माहिती भरली गेली आहे! 🪄 कृपया एकदा तपासून घ्या.');
       } else {
-        showMessage(
-          'बायोडाटा वाचता आला नाही. कृपया स्पष्ट फाईल अपलोड करा.',
-          'error'
-        );
+        alert('बायोडाटा वाचता आला नाही, कृपया व्यवस्थित स्पष्ट फाईल अपलोड करा.');
       }
     } catch (err) {
-      showMessage(
-        'स्कॅनिंग दरम्यान त्रुटी आली.',
-        'error'
-      );
+      alert('स्कॅनिंग दरम्यान त्रुटी आली.');
     } finally {
       setScanning(false);
       e.target.value = '';
