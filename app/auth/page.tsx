@@ -202,6 +202,21 @@ export default function AuthPage() {
     <div
       className={`${poppins.className} min-h-screen bg-slate-50 flex items-center justify-center p-4 text-gray-800`}
     >
+      <a
+  href="https://wa.me/919307130226?text=नमस्कार,%20मला%20Marathi%20Mangalashtak%20मध्ये%20नोंदणीसाठी%20मदत%20हवी%20आहे."
+  target="_blank"
+  rel="noopener noreferrer"
+  className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-green-500 text-white px-3 py-2 rounded-full shadow-lg hover:scale-105 transition"
+>
+  <img
+    src="/whatsapplogo.png"
+    alt="WhatsApp"
+    className="w-8 h-8"
+  />
+  <span className="text-sm font-semibold">
+    मदत हवी आहे?
+  </span>
+</a>
       <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
 
         <h2 className="text-3xl font-bold text-center text-orange-600 mb-1">
