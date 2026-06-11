@@ -12,13 +12,39 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "मराठी मंगलाष्टक",
+export const metadata: Metadata = {
+  title: "मराठी मंगलाष्टक 💍",
   description:
     "मराठी वधू-वरांसाठी सुरक्षित व सोपी विवाह परिचय सेवा. 100% विनामूल्य नोंदणी.",
-    icons: {
-      icon: "/icon.png",
-    },
+
+  icons: {
+    icon: "/icon.png",
+  },
+
+  openGraph: {
+    title: "मराठी मंगलाष्टक 💍",
+    description:
+      "मराठी वधू-वरांसाठी सुरक्षित व सोपी विवाह परिचय सेवा. 100% विनामूल्य नोंदणी.",
+    url: "https://marathimangalashtak.com",
+    siteName: "मराठी मंगलाष्टक",
+    locale: "mr_IN",
+    type: "website",
+    images: [
+      {
+        url: "https://marathimangalashtak.com/icon.png",
+        width: 512,
+        height: 512,
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "मराठी मंगलाष्टक 💍",
+    description:
+      "मराठी वधू-वरांसाठी सुरक्षित व सोपी विवाह परिचय सेवा.",
+    images: ["https://marathimangalashtak.com/icon.png"],
+  },
 };
 
 export default function RootLayout({
