@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Noto_Sans_Devanagari } from 'next/font/google';
 import { Poppins } from 'next/font/google';
 
@@ -17,8 +17,14 @@ const devanagari = Noto_Sans_Devanagari({
 });
 
 export default function AuthPage() {
-  const router = useRouter();
-  const [isSignUp, setIsSignUp] = useState(true);
+
+  const searchParams = useSearchParams();
+
+const isAdminRegister =
+  searchParams.get('register') === 'mm2026admin';
+
+  
+  const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [fullName, setFullName] = useState('');
@@ -202,21 +208,6 @@ export default function AuthPage() {
     <div
       className={`${poppins.className} min-h-screen bg-slate-50 flex items-center justify-center p-4 text-gray-800`}
     >
-      <a
-  href="https://wa.me/919307130226?text=नमस्कार,%20मला%20Marathi%20Mangalashtak%20मध्ये%20नोंदणीसाठी%20मदत%20हवी%20आहे."
-  target="_blank"
-  rel="noopener noreferrer"
-  className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-green-500 text-white px-3 py-2 rounded-full shadow-lg hover:scale-105 transition"
->
-  <img
-    src="/whatsapplogo.png"
-    alt="WhatsApp"
-    className="w-8 h-8"
-  />
-  <span className="text-sm font-semibold">
-    मदत हवी आहे?
-  </span>
-</a>
       <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
 
         <h2 className="text-3xl font-bold text-center text-orange-600 mb-1">
@@ -278,139 +269,189 @@ export default function AuthPage() {
           </div>
         ) : (
           <>
-            <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
-              <button
-                onClick={() => setIsSignUp(true)}
-                className={`flex-1 suppressHydrationWarning py-2 text-xs font-bold rounded-lg transition ${
-                  isSignUp
-                    ? 'bg-white text-orange-600 shadow-sm'
-                    : 'text-gray-500'
-                }`}
-              >
-                नवीन नोंदणी (Register)
-              </button>
+            {isAdminRegister && (
+  <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
+    <button
+      onClick={() => setIsSignUp(true)}
+      className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${
+        isSignUp
+          ? 'bg-white text-orange-600 shadow-sm'
+          : 'text-gray-500'
+      }`}
+    >
+      नवीन नोंदणी (Register)
+    </button>
 
-              <button
-                onClick={() => setIsSignUp(false)}
-                className={`flex-1 suppressHydrationWarning py-2 text-xs font-bold rounded-lg transition ${
-                  !isSignUp
-                    ? 'bg-white text-orange-600 shadow-sm'
-                    : 'text-gray-500'
-                }`}
-              >
-                लॉगिन (Login)
-              </button>
-            </div>
+    <button
+      onClick={() => setIsSignUp(false)}
+      className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${
+        !isSignUp
+          ? 'bg-white text-orange-600 shadow-sm'
+          : 'text-gray-500'
+      }`}
+    >
+      लॉगिन (Login)
+    </button>
+  </div>
+)}
+{isAdminRegister && isSignUp ? (
+  <form
+    onSubmit={handleSignUp}
+    className="space-y-4"
+  >
+    <div>
+      <label className="block text-xs font-bold text-gray-600 mb-1">
+        पूर्ण नाव
+      </label>
 
-            {isSignUp ? (
-              <form
-                onSubmit={handleSignUp}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">
-                    पूर्ण नाव
-                  </label>
+      <input
+        type="text"
+        required
+        placeholder="इथे नाव टाका"
+        value={fullName}
+        onChange={(e) =>
+          setFullName(e.target.value)
+        }
+        className="w-full p-3 text-sm bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+      />
+    </div>
 
-                  <input
-                    type="text"
-                    required
-                    placeholder="इथे नाव टाका"
-                    value={fullName}
-                    onChange={(e) =>
-                      setFullName(e.target.value)
-                    }
-                    className="w-full p-3 text-sm bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
+    <div>
+      <label className="block text-xs font-bold text-gray-600 mb-1">
+        व्हॉट्सॲप नंबर (WhatsApp Number)
+      </label>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">
-                    व्हॉट्सॲप नंबर (WhatsApp Number)
-                  </label>
+      <input
+        type="tel"
+        required
+        maxLength={10}
+        placeholder="इथे व्हॉट्सॲप नंबर टाका"
+        value={whatsappNumber}
+        onChange={(e) =>
+          setWhatsappNumber(
+            e.target.value.replace(
+              /[^0-9]/g,
+              ''
+            )
+          )
+        }
+        className="w-full p-3 text-sm bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+      />
+    </div>
 
-                  <input
-                    type="tel"
-                    required
-                    maxLength={10}
-                    placeholder="इथे व्हॉट्सॲप नंबर टाका"
-                    value={whatsappNumber}
-                    onChange={(e) =>
-                      setWhatsappNumber(
-                        e.target.value.replace(
-                          /[^0-9]/g,
-                          ''
-                        )
-                      )
-                    }
-                    className="w-full p-3 text-sm bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
+    <button
+      type="submit"
+      disabled={loading}
+      className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold p-3 rounded-xl text-xs shadow-md transition pt-3.5 disabled:opacity-50"
+    >
+      {loading
+        ? 'नोंदणी होत आहे...'
+        : 'खाते तयार करा (पासवर्ड जनरेट करा) 🚀'}
+    </button>
+  </form>
+) : (
+  <>
+    <form
+      onSubmit={handleSignIn}
+      className="space-y-4"
+    >
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700">
+        नोंदणी झाल्यानंतर WhatsApp वर पाठवलेला लॉगिन आयडी वापरा.
+      </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold p-3 rounded-xl text-xs shadow-md transition pt-3.5 disabled:opacity-50"
-                >
-                  {loading
-                    ? 'नोंदणी होत आहे...'
-                    : 'खाते तयार करा (पासवर्ड जनरेट करा) 🚀'}
-                </button>
-              </form>
-            ) : (
-              <form
-                onSubmit={handleSignIn}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">
-                    लॉगिन आयडी (Login ID)
-                  </label>
+      <div>
+        <label className="block text-xs font-bold text-gray-600 mb-1">
+          लॉगिन आयडी (Login ID)
+        </label>
 
-                  <input
-                    type="text"
-                    required
-                    placeholder="तुमचा आयडी टाका"
-                    value={loginUsername}
-                    onChange={(e) =>
-                      setLoginUsername(
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-3 text-sm bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
+        <input
+          type="text"
+          required
+          placeholder="तुमचा आयडी टाका"
+          value={loginUsername}
+          onChange={(e) =>
+            setLoginUsername(
+              e.target.value
+            )
+          }
+          className="w-full p-3 text-sm bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
+      </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">
-                    पासवर्ड (Password)
-                  </label>
+      <div>
+        <label className="block text-xs font-bold text-gray-600 mb-1">
+          पासवर्ड (Password)
+        </label>
 
-                  <input
-                    type="password"
-                    required
-                    placeholder="तुमचा जनरेट झालेला पासवर्ड टाका"
-                    value={loginPassword}
-                    onChange={(e) =>
-                      setLoginPassword(
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-3 text-sm bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
+        <input
+          type="password"
+          required
+          placeholder="तुमचा पासवर्ड टाका"
+          value={loginPassword}
+          onChange={(e) =>
+            setLoginPassword(
+              e.target.value
+            )
+          }
+          className="w-full p-3 text-sm bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
+      </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold p-3 rounded-xl text-xs shadow-md transition pt-3.5"
-                >
-                  {loading
-                    ? 'लॉगिन होत आहे...'
-                    : 'सुरक्षित लॉगिन करा 🔑'}
-                </button>
-              </form>
-            )}
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold p-3 rounded-xl text-xs shadow-md transition pt-3.5"
+      >
+        {loading
+          ? 'लॉगिन होत आहे...'
+          : 'सुरक्षित लॉगिन करा 🔑'}
+      </button>
+
+      {!isAdminRegister && (
+        <p className="text-center text-xs text-gray-500">
+          पासवर्ड विसरलात?
+          <a
+            href="https://wa.me/919307130226"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-green-600 font-semibold ml-1"
+          >
+            WhatsApp वर संपर्क करा
+          </a>
+        </p>
+      )}
+    </form>
+
+    {!isAdminRegister && (
+      <div className="mt-6 border-t pt-5 text-center">
+        <h3 className="font-bold text-gray-800">
+          अजून नोंदणी झालेली नाही?
+        </h3>
+
+        <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+          WhatsApp वर संपर्क करा.
+          <br />
+          आम्ही तुमची संपूर्ण नोंदणी
+          विनामूल्य करून देऊ.
+        </p>
+
+        <a
+          href="https://wa.me/919307130226?text=नमस्कार,%20मला%20मराठी%20मंगलाष्टक%20मध्ये%20नोंदणी%20करायची%20आहे."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 mt-4 bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-xl font-semibold shadow-md transition"
+        >
+          <img
+            src="/whatsapplogo.png"
+            alt="WhatsApp"
+            className="w-5 h-5"
+          />
+          WhatsApp वर नोंदणी करा
+        </a>
+      </div>
+    )}
+  </>
+)}
           </>
         )}
       </div>

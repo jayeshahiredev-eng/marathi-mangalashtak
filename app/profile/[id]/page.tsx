@@ -71,7 +71,7 @@ export default function ProfileDetails() {
   
     setTimeout(() => {
       setMessage(null);
-    }, 3000);
+    }, 10000);
   };
 
   const [confirmBox, setConfirmBox] = useState<{
@@ -135,14 +135,14 @@ export default function ProfileDetails() {
   
     if (currentTokens <= 0) {
       showMessage(
-        "❌ तुमचे ५ मोफत टोकन्स संपले आहेत! व्हॉट्सॲपवर संपर्क साधा.",
+        "❌ तुमचे ५ मोफत संपर्क संपले आहेत! आमच्याशी व्हॉट्सॲपवर संपर्क साधा.",
         "error"
       );
       return;
     }
   
     setConfirmBox({
-      text: `या स्थळाची संपर्क माहिती पाहण्यासाठी १ टोकन वजा केले जाईल. (शिल्लक टोकन: ${currentTokens}). पुढे जायचे का?`,
+      text: `या स्थळाची संपर्क माहिती बघायची आहे का?`,
     });
   
     return;
@@ -282,7 +282,7 @@ export default function ProfileDetails() {
           onClick={() => setConfirmBox(null)}
           className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-4 py-2 rounded-xl text-xs"
         >
-          रद्द करा
+          नाही 
         </button>
 
         <button
@@ -332,7 +332,7 @@ export default function ProfileDetails() {
           }}
           className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-4 py-2 rounded-xl text-xs"
         >
-          पुढे जा
+          हो
         </button>
       </div>
     </div>
@@ -342,7 +342,7 @@ export default function ProfileDetails() {
               {isUnlocked ? (
                 <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-3 text-[15px] animate-fade-in">
                   <p className="text-emerald-900 font-bold flex items-center gap-2">
-                    ✅ माहिती अनलॉक झाली आहे {!myProfile?.is_premium && <span className="text-xs font-normal text-emerald-700">(या स्थळासाठी तुमचे पुन्हा टोकन कट होणार नाही)</span>}
+                    ✅ माहिती अनलॉक झाली आहे {!myProfile?.is_premium && <span className="text-xs font-normal text-emerald-700"></span>}
                   </p>
                   <p className="text-gray-700">📱 <strong>मोबाईल नंबर:</strong> <a href={`tel:${targetProfile.mobile_number}`} className="text-blue-600 font-bold underline ml-1">{val(targetProfile.mobile_number)}</a></p>
                   <p className="text-gray-700">📍 <strong>पूर्ण पत्ता:</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.address)}</span></p>
@@ -353,14 +353,14 @@ export default function ProfileDetails() {
                   
                   {/* 🌟 परफेक्ट लॉजिक: जर अनलॉक केलेल्या प्रोफाईल्स ५ पेक्षा कमी असतील आणि शिल्लक टोकन ५ किंवा कमी असतील तरच 'मोफत' दिसेल */}
                   <p className="text-gray-700 text-sm mb-4 leading-relaxed">
-                    सुरक्षिततेसाठी संपर्क क्रमांक लपवला आहे. तुमच्या खात्यामध्ये सध्या{' '}
+                    सुरक्षिततेसाठी संपर्क क्रमांक लपवला आहे. तुम्ही {' '}
                     <strong className="text-sm font-mono text-orange-700 bg-white border border-orange-200 px-2 py-0.5 rounded">
                       {myProfile?.remaining_tokens ?? 0}
                     </strong>{' '}
                     {((myProfile?.unlocked_contacts?.length ?? 0) < 5 && (myProfile?.remaining_tokens ?? 0) <= 5) 
-                      ? 'मोफत टोकन' 
-                      : 'टोकन'}{' '}
-                    शिल्लक आहेत.
+                      ? 'संपर्क मोफत' 
+                      : 'संपर्क'}{' '}
+                     बघू शकतात 
                   </p>
 
                   <button 
@@ -368,7 +368,7 @@ export default function ProfileDetails() {
                     disabled={actionLoading}
                     className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-md disabled:bg-gray-400"
                   >
-                    {actionLoading ? 'अनलॉक होत आहे...' : '१ टोकन वापरून संपर्क माहिती पहा 🚀'}
+                    {actionLoading ? 'अनलॉक होत आहे...' : 'संपर्क माहिती पहा 🚀'}
                   </button>
 
                   {/* 🌟 प्रिमियम खरेदीची ओळ फक्त अगदी सुरुवातीच्या नवीन फ्री युझर्सनाच दिसेल */}
