@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useSearchParams } from 'next/navigation';
 import { Noto_Sans_Devanagari } from 'next/font/google';
 import { Poppins } from 'next/font/google';
 
@@ -18,10 +17,15 @@ const devanagari = Noto_Sans_Devanagari({
 
 export default function AuthPage() {
 
-  const searchParams = useSearchParams();
+  const [isAdminRegister, setIsAdminRegister] = useState(false);
 
-const isAdminRegister =
-  searchParams.get('register') === 'mm2026admin';
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+
+  setIsAdminRegister(
+    params.get('register') === 'mm2026admin'
+  );
+}, []);
 
   
   const [isSignUp, setIsSignUp] = useState(false);
