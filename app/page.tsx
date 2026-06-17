@@ -385,19 +385,19 @@ export default function Home() {
               onClick={() => { setGenderFilter('All'); setShowFavoritesOnly(false); }}
               className={`px-4 py-1.5 rounded-lg font-bold text-xs transition ${genderFilter === 'All' && !showFavoritesOnly ? 'bg-orange-600 text-white shadow-sm' : 'bg-slate-100 text-gray-600'}`}
             >
-              सर्व एकत्र ({profiles.length})
+              सर्व एकत्र 
             </button>
             <button
               onClick={() => { setGenderFilter('Female'); setShowFavoritesOnly(false); }}
               className={`px-4 py-1.5 rounded-lg font-bold text-xs transition ${genderFilter === 'Female' && !showFavoritesOnly ? 'bg-rose-600 text-white shadow-sm' : 'bg-slate-100 text-gray-600'}`}
             >
-              👩 वधू ({profiles.filter(p => p.gender === 'Female').length})
+              👩 वधू 
             </button>
             <button
               onClick={() => { setGenderFilter('Male'); setShowFavoritesOnly(false); }}
               className={`px-4 py-1.5 rounded-lg font-bold text-xs transition ${genderFilter === 'Male' && !showFavoritesOnly ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-gray-600'}`}
             >
-              👨 वर ({profiles.filter(p => p.gender === 'Male').length})
+              👨 वर 
             </button>
             <button
               onClick={async () => {
