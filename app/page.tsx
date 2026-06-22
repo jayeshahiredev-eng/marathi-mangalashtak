@@ -197,6 +197,32 @@ export default function Home() {
     }
   }, []);
 
+  const searchProfiles = useCallback(async (query: string) => {
+    if (!query.trim()) return;
+  
+    setLoading(true);
+  
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+  
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("is_approved", true)
+      .neq("id", user.id)
+      .or(
+        `full_name.ilike.%${query}%,profile_id.ilike.%${query}%`
+      )
+      .order("is_premium", { ascending: false })
+      .order("created_at", { ascending: false });
+  
+    if (!error && data) {
+      setFilteredProfiles(data);
+    }
+  
+    setLoading(false);
+  }, []);
+
   const fetchFavorites = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -218,28 +244,60 @@ export default function Home() {
     }
   }, [authChecking, isApproved, fetchProfiles]);
 
-  // फिल्टर्स मॅनेजमेंट
+  // // फिल्टर्स मॅनेजमेंट
+  // useEffect(() => {
+  //   let result = profiles;
+
+  //   if (genderFilter !== 'All') {
+  //     result = result.filter((p) => p.gender === genderFilter);
+  //   }
+
+  //   if (searchQuery.trim() !== '') {
+  //     const query = searchQuery.toLowerCase();
+  //     result = result.filter((p) => {
+  //       const haystack = [p.full_name, p.profile_id].filter(Boolean).join(' ').toLowerCase();
+  //       return haystack.includes(query);
+  //     });
+  //   }
+
+  //   if (showFavoritesOnly) {
+  //     result = result.filter((p) => favorites.includes(p.id));
+  //   }
+
+  //   setFilteredProfiles(result);
+  // }, [genderFilter, searchQuery, showFavoritesOnly, favorites, profiles]);
+
   useEffect(() => {
+
+    if (searchQuery.trim() !== "") {
+      searchProfiles(searchQuery);
+      return;
+    }
+  
     let result = profiles;
-
-    if (genderFilter !== 'All') {
-      result = result.filter((p) => p.gender === genderFilter);
+  
+    if (genderFilter !== "All") {
+      result = result.filter(
+        (p) => p.gender === genderFilter
+      );
     }
-
-    if (searchQuery.trim() !== '') {
-      const query = searchQuery.toLowerCase();
-      result = result.filter((p) => {
-        const haystack = [p.full_name, p.profile_id].filter(Boolean).join(' ').toLowerCase();
-        return haystack.includes(query);
-      });
-    }
-
+  
     if (showFavoritesOnly) {
-      result = result.filter((p) => favorites.includes(p.id));
+      result = result.filter((p) =>
+        favorites.includes(p.id)
+      );
     }
-
+  
     setFilteredProfiles(result);
-  }, [genderFilter, searchQuery, showFavoritesOnly, favorites, profiles]);
+  
+  }, [
+    searchQuery,
+    genderFilter,
+    showFavoritesOnly,
+    favorites,
+    profiles,
+    searchProfiles
+  ]);
 
   if (authChecking) {
     return (
