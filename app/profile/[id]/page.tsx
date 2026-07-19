@@ -140,7 +140,7 @@ export default function ProfileDetails() {
     const currentTokens = myProfile.remaining_tokens ?? 0;
   
     if (currentTokens <= 0) {
-      const adminMobile = '919359915379';
+      const adminMobile = '919307130226';
       const msg = `मला या प्रोफाईलचा संपर्क हवा आहे. प्रोफाईल आयडी: ${targetProfile.profile_id || targetProfile.id}. माझा नंबर: ${myProfile.mobile_number || '-----'}`;
       const whatsappUrl = `https://api.whatsapp.com/send?phone=${adminMobile}&text=${encodeURIComponent(msg)}`;
       window.open(whatsappUrl, '_blank');
@@ -389,7 +389,7 @@ export default function ProfileDetails() {
                   </button> */}
 
                 <a
-  href={`https://api.whatsapp.com/send?phone=919359915379&text=${encodeURIComponent(`मला या प्रोफाईलचा संपर्क हवा आहे. प्रोफाईल आयडी: ${targetProfile.profile_id || targetProfile.id}.`)}`}
+  href={`https://api.whatsapp.com/send?phone=919307130226&text=${encodeURIComponent(`मला या प्रोफाईलचा संपर्क हवा आहे. प्रोफाईल आयडी: ${targetProfile.profile_id || targetProfile.id}.`)}`}
   target="_blank"
   rel="noopener noreferrer"
   className="mt-3 inline-flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-md"
