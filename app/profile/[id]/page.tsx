@@ -35,6 +35,12 @@ interface Profile {
   father_occupation: string;
   mother_name: string;
   siblings: string;
+  village?: string;
+  brothers_count?: number;
+  sisters_count?: number;
+  mother_aadhaar?: string;
+  mother_relation?: string;
+  expectations?: string;
   uncles_paternal: string;
   uncles_maternal: string;
   relatives: string;
@@ -86,35 +92,31 @@ export default function ProfileDetails() {
     const fetchAllData = async () => {
       setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/auth');
-        return;
-      }
 
-      // १. स्वतःचे प्रोफाइल डिटेल्स आणि टोकन मिळवणे
-      const { data: myData } = await supabase
-        .from('profiles')
-        .select('id, is_premium, remaining_tokens, unlocked_contacts')
-        .eq('id', user.id)
-        .single();
+      if (user) {
+        const { data: myData } = await supabase
+          .from('profiles')
+          .select('id, is_premium, remaining_tokens, unlocked_contacts, mobile_number')
+          .eq('id', user.id)
+          .single();
 
-      setMyProfile(myData);
+        setMyProfile(myData);
 
-      // २. समोरच्याचे प्रोफाइल आणणे
-      const { data: targetData, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', targetProfileId)
-        .single();
-
-      if (!error && targetData) {
-        setTargetProfile(targetData);
-
-        // ३. आधीच अनलॉक केले आहे का ते तपासणे
         const unlockedList = myData?.unlocked_contacts || [];
         if (myData?.is_premium || unlockedList.includes(targetProfileId) || myData?.id === targetProfileId) {
           setIsUnlocked(true);
         }
+      }
+
+      const { data: targetData, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', targetProfileId)
+        .eq('is_approved', true)
+        .single();
+
+      if (!error && targetData) {
+        setTargetProfile(targetData);
       }
       setLoading(false);
     };
@@ -124,7 +126,10 @@ export default function ProfileDetails() {
 
   // 🪙 टोकन कमी करून संपर्क अनलॉक करण्याचे मुख्य फंक्शन
   const handleUnlockContact = async () => {
-    if (!myProfile || !targetProfile) return;
+    if (!myProfile || !targetProfile) {
+      showMessage('संपर्क पाहण्यासाठी लॉगिन करा.', 'error');
+      return;
+    }
   
     if (myProfile.is_premium) {
       setIsUnlocked(true);
@@ -134,10 +139,10 @@ export default function ProfileDetails() {
     const currentTokens = myProfile.remaining_tokens ?? 0;
   
     if (currentTokens <= 0) {
-      showMessage(
-        "❌ तुमचे ५ मोफत संपर्क संपले आहेत! आमच्याशी व्हॉट्सॲपवर संपर्क साधा.",
-        "error"
-      );
+      const adminMobile = '919359915379';
+      const msg = `मला या प्रोफाईलचा संपर्क हवा आहे. प्रोफाईल आयडी: ${targetProfile.profile_id || targetProfile.id}. माझा नंबर: ${myProfile.mobile_number || '-----'}`;
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=${adminMobile}&text=${encodeURIComponent(msg)}`;
+      window.open(whatsappUrl, '_blank');
       return;
     }
   
@@ -225,7 +230,6 @@ export default function ProfileDetails() {
                 <p className="text-gray-600"><strong>जन्म तारीख -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.date_of_birth)}</span></p>
                 <p className="text-gray-600"><strong>जन्म वेळ -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.birth_time)}</span></p>
                 <p className="text-gray-600"><strong>राशी -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.rashi)}</span></p>
-                <p className="text-gray-600"><strong>गोत्र -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.gotra)}</span></p>
                 <p className="text-gray-600"><strong>उंची -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.height)}</span></p>
                 <p className="text-gray-600"><strong>धर्म-जात -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.religion_caste)}</span></p>
               </div>
@@ -244,10 +248,23 @@ export default function ProfileDetails() {
             <div>
               <h3 className="text-lg font-bold text-orange-600 border-b border-orange-100 pb-2 mb-4">👨‍👩‍👦 कौटुंबिक तपशील</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3.5 text-[15px] mb-4">
-                <p className="text-gray-600"><strong>वडिलांचे नाव -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.father_name)}</span></p>
-                <p className="text-gray-600"><strong>वडिलांचा व्यवसाय -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.father_occupation)}</span></p>
-                <p className="text-gray-600"><strong>आईचे नाव -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.mother_name)}</span></p>
-                <p className="text-gray-600"><strong>भाऊ/बहीण -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.siblings)}</span></p>
+                <p className="text-gray-600"><strong>गाव -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.village)}</span></p>
+                <p className="text-gray-600"><strong>भाऊ -</strong> <span className="text-gray-900 font-semibold">{targetProfile.brothers_count ?? '—'}</span></p>
+                <p className="text-gray-600"><strong>बहीण -</strong> <span className="text-gray-900 font-semibold">{targetProfile.sisters_count ?? '—'}</span></p>
+                <p className="text-gray-600"><strong>मामा -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.mother_aadhaar)}</span></p>
+                <p className="text-gray-600"><strong>नातेसंबंध -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.relatives)}</span></p>
+              </div>
+            </div>
+
+            {/* अपेक्षा सेक्शन */}
+            <div>
+              <h3 className="text-lg font-bold text-orange-600 border-b border-orange-100 pb-2 mb-4">🎯 अपेक्षा</h3>
+              <div className="text-[15px] text-gray-700">
+                {targetProfile.expectations ? (
+                  <p className="whitespace-pre-wrap">{targetProfile.expectations}</p>
+                ) : (
+                  <p className="text-gray-500">—</p>
+                )}
               </div>
             </div>
 
@@ -352,29 +369,41 @@ export default function ProfileDetails() {
                   <p className="text-amber-900 font-semibold mb-2">🔒 संपर्क माहिती LOCK आहे</p>
                   
                   {/* 🌟 परफेक्ट लॉजिक: जर अनलॉक केलेल्या प्रोफाईल्स ५ पेक्षा कमी असतील आणि शिल्लक टोकन ५ किंवा कमी असतील तरच 'मोफत' दिसेल */}
-                  <p className="text-gray-700 text-sm mb-4 leading-relaxed">
-                    सुरक्षिततेसाठी संपर्क क्रमांक लपवला आहे. तुम्ही {' '}
+                  <p className="text-gray-700 text-sm mb-4 leading-relaxed"> सुरक्षिततेसाठी संपर्क क्रमांक लपवला आहे.
+                    {/* सुरक्षिततेसाठी संपर्क क्रमांक लपवला आहे. तुम्ही {' '}
                     <strong className="text-sm font-mono text-orange-700 bg-white border border-orange-200 px-2 py-0.5 rounded">
                       {myProfile?.remaining_tokens ?? 0}
                     </strong>{' '}
                     {((myProfile?.unlocked_contacts?.length ?? 0) < 5 && (myProfile?.remaining_tokens ?? 0) <= 5) 
                       ? 'संपर्क मोफत' 
                       : 'संपर्क'}{' '}
-                     बघू शकतात 
+                     बघू शकतात  */}
                   </p>
 
-                  <button 
+                  {/* <button 
                     onClick={handleUnlockContact}
                     disabled={actionLoading}
                     className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-md disabled:bg-gray-400"
                   >
                     {actionLoading ? 'अनलॉक होत आहे...' : 'संपर्क माहिती पहा 🚀'}
-                  </button>
+                  </button> */}
+
+                  {/* जर मोफत संपर्क संपले असतील तर ऍडमिनकडे व्हॉट्सॲप संदेश पाठवण्यासाठी भिन्न बटण दाखवा */}
+                  {((myProfile?.remaining_tokens ?? 0) <= 0) && (
+                    <a
+                      href={`https://api.whatsapp.com/send?phone=919359915379&text=${encodeURIComponent(`मला या प्रोफाईलचा संपर्क हवा आहे. प्रोफाईल आयडी: ${targetProfile.profile_id || targetProfile.id}.}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-md"
+                    >
+                      मोफत नोंदणी करा (WhatsApp)
+                    </a>
+                  )}
 
                   {/* 🌟 प्रिमियम खरेदीची ओळ फक्त अगदी सुरुवातीच्या नवीन फ्री युझर्सनाच दिसेल */}
                   {((myProfile?.unlocked_contacts?.length ?? 0) < 5 && (myProfile?.remaining_tokens ?? 0) <= 5) && (
                     <p className="text-[10px] text-gray-400 mt-2">
-                      किंवा अमर्यादित बायोडाटा पाहण्यासाठी प्रिमियम प्लॅन खरेदी करा.
+                      {/* किंवा अमर्यादित बायोडाटा पाहण्यासाठी प्रिमियम प्लॅन खरेदी करा. */}
                     </p>
                   )}
                 </div>

@@ -18,6 +18,7 @@ const devanagari = Noto_Sans_Devanagari({
 
 interface Profile {
   id: string;
+  short_name?: string;
   full_name?: string;
   gender?: string;
   date_of_birth?: string;
@@ -48,6 +49,7 @@ const getProfileHeight = (p: Profile) => p.height?.trim() || '—';
 const getProfileRashi = (p: Profile) => p.rashi?.trim() || '—';
 
 
+
 export default function Home() {
   const router = useRouter();
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -76,6 +78,7 @@ export default function Home() {
   const [favorites, setFavorites] = useState<string[]>([]);
   
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const PAGE_SIZE = 20;
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -90,33 +93,20 @@ export default function Home() {
     onConfirm: () => void;
   } | null>(null);
 
-  const handleLogout = async () => {
-    setConfirmBox({
-      text: "तुम्हाला नक्की लॉगआऊट करायचे आहे का?",
-      onConfirm: async () => {
-        const { error } = await supabase.auth.signOut();
-  
-        if (!error) {
-          window.location.href = '/auth';
-        } else {
-          showMessage("लॉगआऊट करताना त्रुटी आली.", "error");
-        }
-  
-        setConfirmBox(null);
-      },
-    });
-  };
-
-  // 🚨 कडक सुरक्षा आणि रिडायरेक्शन लॉजिक
+  // लॉगिन असलेल्या युझरची माहिती (पब्लिक पान — लॉगिन अनिवार्य नाही)
   useEffect(() => {
     const checkUserSessionAndProfile = async () => {
       setAuthChecking(true);
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
-        window.location.href = '/auth';
+        setCurrentUserId(null);
+        setIsApproved(false);
+        setAuthChecking(false);
         return;
       }
+
+      setCurrentUserId(user.id);
 
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -124,12 +114,16 @@ export default function Home() {
         .eq('id', user.id)
         .single();
 
-      if (error || !profile || !profile.is_profile_complete) {
+      if (error || !profile) {
+        setAuthChecking(false);
+        return;
+      }
+
+      if (!profile.is_profile_complete) {
         router.push('/profile-setup');
         return;
       }
 
-      // आयडी जनरेट करून ठेवणे जेणेकरून अप्रूव्हल स्क्रीनवर दाखवता येईल
       const cleanId = profile.profile_id || String(profile.id).replace(/[^a-zA-Z0-9]/g, '').slice(-5).toUpperCase();
       setMyProfileId(cleanId);
       setIsApproved(!!profile.is_approved);
@@ -140,19 +134,21 @@ export default function Home() {
   }, [router]);
 
   const toggleFavorite = async (profileId: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!currentUserId) {
+      showMessage('आवडलेले जतन करण्यासाठी प्रथम लॉगिन करा.', 'error');
+      return;
+    }
 
     const alreadySaved = favorites.includes(profileId);
 
     if (alreadySaved) {
-      await supabase.from('favorites').delete().eq('user_id', user.id).eq('profile_id', profileId);
+      await supabase.from('favorites').delete().eq('user_id', currentUserId).eq('profile_id', profileId);
       setFavorites((prev) => prev.filter((id) => id !== profileId));
       if (showFavoritesOnly && favorites.length === 1) {
         setShowFavoritesOnly(false);
       }
     } else {
-      await supabase.from('favorites').insert({ user_id: user.id, profile_id: profileId });
+      await supabase.from('favorites').insert({ user_id: currentUserId, profile_id: profileId });
       setFavorites((prev) => [...prev, profileId]);
     }
   };
@@ -162,13 +158,9 @@ export default function Home() {
     setFetchError(null);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const from = pageNumber * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 
-      // 🌟 प्रिमियम युझर्स आधी दिसण्यासाठी 'is_premium' ला descending ऑर्डर लावली आहे
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -183,7 +175,9 @@ export default function Home() {
       }
 
       const allData = data ?? [];
-      const list = allData.filter((p) => p.id !== user.id);
+      const list = currentUserId
+        ? allData.filter((p) => p.id !== currentUserId)
+        : allData;
 
       setProfiles((prev) => {
         return pageNumber === 0 ? list : [...prev, ...list];
@@ -193,44 +187,43 @@ export default function Home() {
     } catch (err) {
       setFetchError('प्रोफाइल लोड करता आले नाहीत.');
     } finally {
-      if (pageNumber === 0) setLoading(false);
+      if (pageNumber === 0)       setLoading(false);
     }
-  }, []);
+  }, [currentUserId]);
 
   const searchProfiles = useCallback(async (query: string) => {
     if (!query.trim()) return;
-  
+
     setLoading(true);
-  
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-  
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("is_approved", true)
-      .neq("id", user.id)
-      .or(
-        `full_name.ilike.%${query}%,profile_id.ilike.%${query}%`
-      )
-      .order("is_premium", { ascending: false })
-      .order("created_at", { ascending: false });
-  
+
+    let searchQuery = supabase
+      .from('profiles')
+      .select('*')
+      .eq('is_approved', true)
+      .or(`full_name.ilike.%${query}%,profile_id.ilike.%${query}%`)
+      .order('is_premium', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (currentUserId) {
+      searchQuery = searchQuery.neq('id', currentUserId);
+    }
+
+    const { data, error } = await searchQuery;
+
     if (!error && data) {
       setFilteredProfiles(data);
     }
-  
+
     setLoading(false);
-  }, []);
+  }, [currentUserId]);
 
   const fetchFavorites = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!currentUserId) return;
 
     const { data, error } = await supabase
       .from('favorites')
       .select('profile_id')
-      .eq('user_id', user.id);
+      .eq('user_id', currentUserId);
 
     if (!error && data) {
       setFavorites(data.map((f) => f.profile_id));
@@ -238,11 +231,13 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!authChecking && isApproved) {
+    if (!authChecking) {
       fetchProfiles(0);
-      fetchFavorites();
+      if (currentUserId && isApproved) {
+        fetchFavorites();
+      }
     }
-  }, [authChecking, isApproved, fetchProfiles]);
+  }, [authChecking, currentUserId, isApproved, fetchProfiles]);
 
   // // फिल्टर्स मॅनेजमेंट
   // useEffect(() => {
@@ -307,8 +302,8 @@ export default function Home() {
     );
   }
 
-  // 🔒 जर युझर अप्रूव्ड नसेल, तर त्याला हे कडक अप्रूव्हल कव्हर दिसेल!
-  if (!isApproved) {
+  // 🔒 लॉगिन केलेला पण अजून मंजूर न केलेला युझर
+  if (currentUserId && !isApproved) {
     const adminMobile = "919359915379";
     const message = `नमस्कार, माझा मराठी मंगलाष्टक आयडी [${myProfileId}] हा आहे. कृपया माझे खाते मंजूर (Approve) करावे.`;
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${adminMobile}?text=${encodeURIComponent(message)}`;
@@ -344,7 +339,7 @@ export default function Home() {
     const { error } = await supabase.auth.signOut();
 
     if (!error) {
-      window.location.href = "/auth";
+      window.location.href = '/';
     } else {
       showMessage("लॉगआऊट करताना त्रुटी आली.", "error");
     }
@@ -366,24 +361,30 @@ export default function Home() {
         मराठी मंगलाष्टक 💍
       </h1>
       <p className="text-gray-500 text-xs mt-1">महाराष्ट्रातील अग्रगण्य डिजिटल मॅट्रिमोनी प्लॅटफॉर्म</p>
-        <div className="mt-4 flex justify-center gap-3">
-          <button
-            onClick={() => router.push('/profile-setup')}
-            className="bg-orange-50 text-orange-700 border border-orange-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-orange-100 transition"
-          >
-            ✏️ माझा बायोडेटा भरा/बदला
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-red-100 transition"
-          >
-            🚪 लॉगआऊट (Sign Out)
-          </button>
-        </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* नवीन वधू/वर नोंदणी — WhatsApp */}
+        <section className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 sm:p-8 mb-8 text-center">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+            वधूवराची नोंदणी करायची आहे?
+          </h2>
+          <p className="text-sm text-gray-500 mt-2 leading-relaxed max-w-lg mx-auto">
+            WhatsApp वर संपर्क करा.
+            <br />
+            आम्ही तुमची संपूर्ण नोंदणी विनामूल्य करून देऊ.
+          </p>
+          <a
+            href="https://wa.me/919307130226?text=नमस्कार,%20मला%20मराठी%20मंगलाष्टक%20मध्ये%20नोंदणी%20करायची%20आहे."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 mt-5 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition text-xs"
+          >
+            <img src="/whatsapplogo.png" alt="WhatsApp" className="w-4 h-4" />
+            WhatsApp वर नोंदणी करा
+          </a>
+          
+        </section>
       {message && (
   <div className="max-w-3xl mx-auto px-4 mb-4">
     <div
@@ -437,8 +438,9 @@ export default function Home() {
               className="w-full p-3 text-sm bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
+    
 
-          <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-50">
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-50 center">
             <button
               onClick={() => { setGenderFilter('All'); setShowFavoritesOnly(false); }}
               className={`px-4 py-1.5 rounded-lg font-bold text-xs transition ${genderFilter === 'All' && !showFavoritesOnly ? 'bg-orange-600 text-white shadow-sm' : 'bg-slate-100 text-gray-600'}`}
@@ -457,7 +459,7 @@ export default function Home() {
             >
               👨 वर 
             </button>
-            <button
+            {/* <button
               onClick={async () => {
                 if (!showFavoritesOnly && favorites.length === 0) {
                   showMessage(
@@ -471,13 +473,19 @@ export default function Home() {
               className={`px-4 py-1.5 rounded-lg font-bold text-xs transition ${showFavoritesOnly ? 'bg-red-500 text-white shadow-sm' : 'bg-red-50 text-red-600 border border-red-100'}`}
             >
               {showFavoritesOnly ? '❤️ फक्त आवडलेले दाखवत आहे' : `❤️ आवडलेले (${favorites.length})`}
-            </button>
+            </button> */}
           </div>
         </div>
-
+<div className="bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-100 mb-2">
+  <p className="text-center text-sm text-gray-600 font-medium">
+  ⭐ सर्वात वर दिसण्यासाठी प्रीमियम घ्या
+</p>           
+          </div>
         {loading && profiles.length === 0 && (
           <p className="text-center text-gray-500 font-medium animate-pulse py-12">बायोडेटा शोधत आहे...</p>
         )}
+
+
 
         {/* प्रोफाइल ग्रिड */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -521,7 +529,7 @@ export default function Home() {
                     <h3 className="text-base font-bold text-gray-900 tracking-tight mt-1">{getProfileName(profile)}</h3>
                   </div>
                   
-                  <button
+                  {/* <button
   onClick={(e) => {
     e.stopPropagation();
     toggleFavorite(profile.id);
@@ -529,7 +537,7 @@ export default function Home() {
   className="text-2xl hover:scale-110 transition flex-shrink-0"
 >
   {favorites.includes(profile.id) ? '❤️' : '🤍'}
-</button>
+</button> */}
                 </div>
 
                 <div className="space-y-2 text-xs text-gray-600">

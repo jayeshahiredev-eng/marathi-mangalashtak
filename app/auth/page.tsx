@@ -22,9 +22,12 @@ export default function AuthPage() {
 useEffect(() => {
   const params = new URLSearchParams(window.location.search);
 
-  setIsAdminRegister(
-    params.get('register') === 'mm2026admin'
-  );
+  const isAdmin = params.get('register') === 'mm2026admin';
+  setIsAdminRegister(isAdmin);
+
+  if (!isAdmin) {
+    window.location.href = '/';
+  }
 }, []);
 
   
