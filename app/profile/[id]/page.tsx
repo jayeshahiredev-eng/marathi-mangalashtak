@@ -394,7 +394,7 @@ export default function ProfileDetails() {
   rel="noopener noreferrer"
   className="mt-3 inline-flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-md"
 >
-  WhatsApp वर नोंदणी करा
+  WhatsApp करा
 </a>
 
                   {/* 🌟 प्रिमियम खरेदीची ओळ फक्त अगदी सुरुवातीच्या नवीन फ्री युझर्सनाच दिसेल */}
