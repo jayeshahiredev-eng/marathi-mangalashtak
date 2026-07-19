@@ -49,6 +49,7 @@ interface Profile {
   profile_id?: string;
   mobile_number?: string;
   address?: string;
+  mama_surname?: string;
   is_premium?: boolean;
 }
 
@@ -165,7 +166,7 @@ export default function ProfileDetails() {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
         <p className="text-xl font-bold text-red-600 mb-4">क्षमस्व, हा बायोडेटा सापडला नाही.</p>
-        <button onClick={() => router.push('/')} className="bg-orange-600 text-white px-6 py-2 rounded-xl font-bold">
+        <button onClick={() => (window.history.length > 1 ? router.back() : router.push('/'))} className="bg-orange-600 text-white px-6 py-2 rounded-xl font-bold">
           मुख्य पानावर परत जा
         </button>
       </div>
@@ -248,10 +249,9 @@ export default function ProfileDetails() {
             <div>
               <h3 className="text-lg font-bold text-orange-600 border-b border-orange-100 pb-2 mb-4">👨‍👩‍👦 कौटुंबिक तपशील</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3.5 text-[15px] mb-4">
-                <p className="text-gray-600"><strong>गाव -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.village)}</span></p>
-                <p className="text-gray-600"><strong>भाऊ -</strong> <span className="text-gray-900 font-semibold">{targetProfile.brothers_count ?? '—'}</span></p>
-                <p className="text-gray-600"><strong>बहीण -</strong> <span className="text-gray-900 font-semibold">{targetProfile.sisters_count ?? '—'}</span></p>
-                <p className="text-gray-600"><strong>मामा -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.mother_aadhaar)}</span></p>
+                <p className="text-gray-600"><strong>पत्ता -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.address)}</span></p>
+                <p className="text-gray-600"><strong>भावंडे -</strong> <span className="text-gray-900 font-semibold">{targetProfile.siblings ?? '—'}</span></p>
+                <p className="text-gray-600"><strong>मामा -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.mama_surname)}</span></p>
                 <p className="text-gray-600"><strong>नातेसंबंध -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.relatives)}</span></p>
               </div>
             </div>
@@ -394,7 +394,7 @@ export default function ProfileDetails() {
   rel="noopener noreferrer"
   className="mt-3 inline-flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-md"
 >
-  WhatsApp करा
+  संपर्क मिळवा 
 </a>
 
                   {/* 🌟 प्रिमियम खरेदीची ओळ फक्त अगदी सुरुवातीच्या नवीन फ्री युझर्सनाच दिसेल */}

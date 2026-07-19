@@ -302,7 +302,7 @@ export default function AdminPanel() {
                 </thead>
                 <tbody className="divide-y divide-slate-700/50 text-sm">
                   {filteredProfiles.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-700/30 transition">
+                    <tr key={p.id} onClick={() => router.push(`/admin/profile/${p.id}`)} className="hover:bg-slate-700/30 transition cursor-pointer">
                       
                       <td className="p-4">
                         <div className="font-bold text-slate-100 flex items-center gap-2">

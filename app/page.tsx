@@ -83,6 +83,7 @@ export default function Home() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [restoredFromSession, setRestoredFromSession] = useState(false);
   const [message, setMessage] = useState<{
     text: string;
     type: 'success' | 'error';
@@ -230,9 +231,61 @@ export default function Home() {
     }
   };
 
+  // Save current home state and scroll, then navigate to profile
+  const navigateToProfile = (profileId: string) => {
+    try {
+      const state = {
+        profiles,
+        filteredProfiles,
+        page,
+        hasMore,
+        genderFilter,
+        searchQuery,
+        showFavoritesOnly,
+        favorites,
+      };
+      sessionStorage.setItem('marriage_home_state', JSON.stringify(state));
+      sessionStorage.setItem('marriage_home_scroll', String(window.scrollY || window.pageYOffset || 0));
+    } catch (e) {
+      // ignore
+    }
+
+    router.push(`/profile/${profileId}`);
+  };
+
   useEffect(() => {
     if (!authChecking) {
-      fetchProfiles(0);
+      const saved = sessionStorage.getItem('marriage_home_state');
+      if (saved) {
+        try {
+          const s = JSON.parse(saved);
+          // restore minimal state
+          if (s.profiles) setProfiles(s.profiles);
+          if (s.filteredProfiles) setFilteredProfiles(s.filteredProfiles);
+          if (typeof s.page === 'number') setPage(s.page);
+          if (typeof s.hasMore === 'boolean') setHasMore(s.hasMore);
+          if (s.genderFilter) setGenderFilter(s.genderFilter);
+          if (s.searchQuery) setSearchQuery(s.searchQuery);
+          if (typeof s.showFavoritesOnly === 'boolean') setShowFavoritesOnly(s.showFavoritesOnly);
+          if (s.favorites) setFavorites(s.favorites);
+          setRestoredFromSession(true);
+
+          // restore scroll after a tick
+          const savedScroll = Number(sessionStorage.getItem('marriage_home_scroll') || 0);
+          if (savedScroll) {
+            requestAnimationFrame(() => {
+              window.scrollTo(0, savedScroll);
+            });
+          }
+        } catch (e) {
+          // ignore parse errors
+        }
+      }
+
+      if (!saved) {
+        fetchProfiles(0);
+      }
+
       if (currentUserId && isApproved) {
         fetchFavorites();
       }
@@ -492,7 +545,7 @@ export default function Home() {
           {filteredProfiles.map((profile) => (
             <div
               key={profile.id}
-              onClick={() => router.push(`/profile/${profile.id}`)}
+              onClick={() => navigateToProfile(profile.id)}
               className={`bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition flex flex-col justify-between border-2 ${
                 profile.is_premium ? 'border-amber-400 bg-gradient-to-b from-amber-50/20 to-white shadow-amber-100' : 'border-gray-100'
               }`}
@@ -551,7 +604,7 @@ export default function Home() {
 
               <div className="p-4 bg-slate-50 border-t border-gray-50">
                 <button
-                  onClick={() => router.push(`/profile/${profile.id}`)}
+                  onClick={() => navigateToProfile(profile.id)}
                   className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-xl text-xs tracking-wide transition text-center shadow-sm"
                 >
                   🔍 संपूर्ण बायोडेटा व संपर्क पहा
