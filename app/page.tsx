@@ -357,7 +357,7 @@ export default function Home() {
 
   // 🔒 लॉगिन केलेला पण अजून मंजूर न केलेला युझर
   if (currentUserId && !isApproved) {
-    const adminMobile = "919359915379";
+    const adminMobile = "919307130226";
     const message = `नमस्कार, माझा मराठी मंगलाष्टक आयडी [${myProfileId}] हा आहे. कृपया माझे खाते मंजूर (Approve) करावे.`;
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${adminMobile}?text=${encodeURIComponent(message)}`;
 
