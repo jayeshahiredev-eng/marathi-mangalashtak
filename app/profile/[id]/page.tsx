@@ -388,17 +388,14 @@ export default function ProfileDetails() {
                     {actionLoading ? 'अनलॉक होत आहे...' : 'संपर्क माहिती पहा 🚀'}
                   </button> */}
 
-                  {/* जर मोफत संपर्क संपले असतील तर ऍडमिनकडे व्हॉट्सॲप संदेश पाठवण्यासाठी भिन्न बटण दाखवा */}
-                  {((myProfile?.remaining_tokens ?? 0) <= 0) && (
-                    <a
-                      href={`https://api.whatsapp.com/send?phone=919359915379&text=${encodeURIComponent(`मला या प्रोफाईलचा संपर्क हवा आहे. प्रोफाईल आयडी: ${targetProfile.profile_id || targetProfile.id}.}`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-3 inline-flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-md"
-                    >
-                      मोफत नोंदणी करा (WhatsApp)
-                    </a>
-                  )}
+                <a
+  href={`https://api.whatsapp.com/send?phone=919359915379&text=${encodeURIComponent(`मला या प्रोफाईलचा संपर्क हवा आहे. प्रोफाईल आयडी: ${targetProfile.profile_id || targetProfile.id}.`)}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="mt-3 inline-flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-md"
+>
+  WhatsApp वर नोंदणी करा
+</a>
 
                   {/* 🌟 प्रिमियम खरेदीची ओळ फक्त अगदी सुरुवातीच्या नवीन फ्री युझर्सनाच दिसेल */}
                   {((myProfile?.unlocked_contacts?.length ?? 0) < 5 && (myProfile?.remaining_tokens ?? 0) <= 5) && (
