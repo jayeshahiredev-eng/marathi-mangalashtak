@@ -363,9 +363,9 @@ export default function Home() {
       <p className="text-gray-500 text-xs mt-1">महाराष्ट्रातील अग्रगण्य डिजिटल मॅट्रिमोनी प्लॅटफॉर्म</p>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-4">
         {/* नवीन वधू/वर नोंदणी — WhatsApp */}
-        <section className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 sm:p-8 mb-8 text-center">
+        <section className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 sm:p-8 mb-2 text-center">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900">
             वधूवराची नोंदणी करायची आहे?
           </h2>
@@ -425,7 +425,7 @@ export default function Home() {
   </div>
 )}
         {/* फिल्टर सेक्शन */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8 space-y-4">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-2 space-y-4">
           <div className="w-full">
             <label className="block text-[11px] font-bold text-gray-400 mb-1 uppercase">
               नाव किंवा प्रोफाईल ID (ID) टाईप करा
