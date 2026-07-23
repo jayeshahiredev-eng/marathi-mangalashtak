@@ -411,22 +411,17 @@ export default function Home() {
     <div className={`${poppins.className} min-h-screen bg-slate-50 text-gray-800`} suppressHydrationWarning>
     <header className="bg-white border-b border-gray-100 py-6 px-4 text-center shadow-sm">
       <h1 className="text-3xl font-bold text-orange-600 antialiased tracking-normal">
-        मराठी मंगलाष्टक 💍
+        मराठी मंगलाष्टक
       </h1>
-      <p className="text-gray-500 text-xs mt-1">महाराष्ट्रातील अग्रगण्य डिजिटल मॅट्रिमोनी प्लॅटफॉर्म</p>
+      <p className="text-gray-500 text-xs mt-1">महाराष्ट्रातील अग्रगण्य विवाहनोंदणी प्लॅटफॉर्म</p>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-4">
         {/* नवीन वधू/वर नोंदणी — WhatsApp */}
         <section className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 sm:p-8 mb-2 text-center">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-            वधूवराची नोंदणी करायची आहे?
+            वधूवराची विनामूल्य नोंदणी करायची आहे?
           </h2>
-          <p className="text-sm text-gray-500 mt-2 leading-relaxed max-w-lg mx-auto">
-            WhatsApp वर संपर्क करा.
-            <br />
-            आम्ही तुमची संपूर्ण नोंदणी विनामूल्य करून देऊ.
-          </p>
           <a
             href="https://wa.me/919307130226?text=नमस्कार,%20मला%20मराठी%20मंगलाष्टक%20मध्ये%20नोंदणी%20करायची%20आहे."
             target="_blank"

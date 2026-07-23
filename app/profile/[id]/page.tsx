@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Noto_Sans_Devanagari } from 'next/font/google';
 
 import { Poppins } from 'next/font/google';
+import { profile } from 'console';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -21,7 +22,7 @@ interface Profile {
   id: string;
   gender: string;
   full_name: string;
-  date_of_birth: string;
+  date_of_birth?: string;
   birth_time: string;
   rashi: string;
   gotra?: string;
@@ -228,6 +229,7 @@ export default function ProfileDetails() {
               <h3 className="text-lg font-bold text-orange-600 border-b border-orange-100 pb-2 mb-4">✨ वैयक्तिक तपशील</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3.5 text-[15px]">
                 <p className="text-gray-600"><strong>नाव -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.full_name)}</span></p>
+                <p className="text-gray-600"><strong>वय -</strong> <span className="text-gray-900 font-semibold">{targetProfile.date_of_birth ? Math.abs(new Date(Date.now() - new Date(targetProfile.date_of_birth).getTime()).getUTCFullYear() - 1970) + " वर्षे" : '—'}</span></p>
                 <p className="text-gray-600"><strong>जन्म तारीख -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.date_of_birth)}</span></p>
                 <p className="text-gray-600"><strong>जन्म वेळ -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.birth_time)}</span></p>
                 <p className="text-gray-600"><strong>राशी -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.rashi)}</span></p>
@@ -235,7 +237,7 @@ export default function ProfileDetails() {
                 <p className="text-gray-600"><strong>धर्म-जात -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.religion_caste)}</span></p>
               </div>
             </div>
-
+                
             {/* ३. शिक्षण आणि नोकरी */}
             <div>
               <h3 className="text-lg font-bold text-orange-600 border-b border-orange-100 pb-2 mb-4">💼 शिक्षण आणि नोकरी</h3>
@@ -366,28 +368,7 @@ export default function ProfileDetails() {
                 </div>
               ) : (
                 <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center shadow-sm">
-                  <p className="text-amber-900 font-semibold mb-2">🔒 संपर्क माहिती LOCK आहे</p>
-                  
-                  {/* 🌟 परफेक्ट लॉजिक: जर अनलॉक केलेल्या प्रोफाईल्स ५ पेक्षा कमी असतील आणि शिल्लक टोकन ५ किंवा कमी असतील तरच 'मोफत' दिसेल */}
-                  <p className="text-gray-700 text-sm mb-4 leading-relaxed"> सुरक्षिततेसाठी संपर्क क्रमांक लपवला आहे.
-                    {/* सुरक्षिततेसाठी संपर्क क्रमांक लपवला आहे. तुम्ही {' '}
-                    <strong className="text-sm font-mono text-orange-700 bg-white border border-orange-200 px-2 py-0.5 rounded">
-                      {myProfile?.remaining_tokens ?? 0}
-                    </strong>{' '}
-                    {((myProfile?.unlocked_contacts?.length ?? 0) < 5 && (myProfile?.remaining_tokens ?? 0) <= 5) 
-                      ? 'संपर्क मोफत' 
-                      : 'संपर्क'}{' '}
-                     बघू शकतात  */}
-                  </p>
-
-                  {/* <button 
-                    onClick={handleUnlockContact}
-                    disabled={actionLoading}
-                    className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition shadow-md disabled:bg-gray-400"
-                  >
-                    {actionLoading ? 'अनलॉक होत आहे...' : 'संपर्क माहिती पहा 🚀'}
-                  </button> */}
-
+                  <p className="text-amber-900 font-semibold mb-2">🔒 सुरक्षिततेसाठी माहिती लपवली आहे </p>
                 <a
   href={`https://api.whatsapp.com/send?phone=919307130226&text=${encodeURIComponent(`मला या प्रोफाईलचा संपर्क हवा आहे. प्रोफाईल आयडी: ${targetProfile.profile_id || targetProfile.id}.`)}`}
   target="_blank"

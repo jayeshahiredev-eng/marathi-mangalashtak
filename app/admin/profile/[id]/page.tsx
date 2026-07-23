@@ -124,6 +124,79 @@ export default function AdminProfileView() {
             <p><strong>मंजुरी स्थिती:</strong> {profile.is_approved ? 'मंजूर' : 'प्रलंबित'}</p>
           </div>
         </section>
+          <section>
+        <h3 className="text-lg font-bold text-orange-600 mb-3">
+        📋 शेअर करण्यासाठी तयार संदेश
+        </h3>
+
+        <textarea
+        readOnly
+        value={`💍 *मराठी मंगलाष्टक - विवाह परिचय*
+
+        👤 *नाव:* ${val(profile.full_name)}
+        🆔 *प्रोफाईल आयडी:* ${val(profile.profile_id)}
+        🎂 *वय:* ${
+        profile.date_of_birth
+          ? Math.abs(
+              new Date(Date.now() - new Date(profile.date_of_birth).getTime()).getUTCFullYear() - 1970
+            ) + ' वर्षे'
+          : '—'
+        }
+        👨 *वडिलांचे नाव:* ${val(profile.father_name)}
+        🎓 *शिक्षण:* ${val(profile.education)}
+        💼 *व्यवसाय:* ${val(profile.profession)}
+        📏 *उंची:* ${val(profile.height)}
+        🕉 *धर्म / जात:* ${val(profile.religion_caste)}
+        🌟 *राशी:* ${val(profile.rashi)}
+
+        🏡 *पत्ता:*
+        ${val(profile.address)}
+
+        📞 *संपर्क क्रमांक:*
+        ${val(profile.mobile_number)}
+
+        ━━━━━━━━━━━━━━━━━━
+        अधिक माहितीसाठी संपर्क करा.
+        मराठी मंगलाष्टक 💍`}
+        className="w-full h-80 rounded-xl border border-gray-300 bg-gray-50 p-4 text-sm font-mono"
+        />
+
+        <button
+        onClick={() =>
+        navigator.clipboard.writeText(`💍 *मराठी मंगलाष्टक - विवाह परिचय*
+
+        👤 *नाव:* ${val(profile.full_name)}
+        🆔 *प्रोफाईल आयडी:* ${val(profile.profile_id)}
+        🎂 *वय:* ${
+            profile.date_of_birth
+              ? Math.abs(
+                  new Date(Date.now() - new Date(profile.date_of_birth).getTime()).getUTCFullYear() - 1970
+                ) + ' वर्षे'
+              : '—'
+          }
+        👨 *वडिलांचे नाव:* ${val(profile.father_name)}
+        🎓 *शिक्षण:* ${val(profile.education)}
+        💼 *व्यवसाय:* ${val(profile.profession)}
+        📏 *उंची:* ${val(profile.height)}
+        🕉 *धर्म / जात:* ${val(profile.religion_caste)}
+        🌟 *राशी:* ${val(profile.rashi)}
+
+        🏡 *पत्ता:*
+        ${val(profile.address)}
+
+        📞 *संपर्क क्रमांक:*
+        ${val(profile.mobile_number)}
+
+        ━━━━━━━━━━━━━━━━━━
+        अधिक माहितीसाठी संपर्क करा.
+        मराठी मंगलाष्टक 💍`)
+        }
+        className="mt-3 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl font-bold"
+        >
+        📋 संदेश कॉपी करा
+        </button>
+        </section>
+        
       </main>
     </div>
   );
