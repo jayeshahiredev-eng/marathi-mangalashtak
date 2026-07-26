@@ -19,6 +19,7 @@ const devanagari = Noto_Sans_Devanagari({
 interface Profile {
   id: string;
   short_name?: string;
+  surname?: string;
   full_name?: string;
   gender?: string;
   date_of_birth?: string;
@@ -41,6 +42,7 @@ interface Profile {
 
 const getProfilePhoto = (p: Profile) => p.profile_pic_url || p.avatar_url || null;
 const getProfileName = (p: Profile) => p.full_name?.trim() || '—';
+const getProfileSurname = (p: Profile) => p.surname?.trim() || p.short_name?.trim() || '—';
 const getProfileCaste = (p: Profile) => p.caste?.trim() || p.religion?.trim() || p.religion_caste?.trim() || '—';
 const getProfileCity = (p: Profile) => p.city?.trim() || p.birth_place?.trim() || '—';
 const getProfileEducation = (p: Profile) => p.education?.trim() || '—';
@@ -574,7 +576,7 @@ export default function Home() {
                         </span>
                       )}
                     </div>
-                    <h3 className="text-base font-bold text-gray-900 tracking-tight mt-1">{getProfileName(profile)}</h3>
+                    <h3 className="text-base font-bold text-gray-900 tracking-tight mt-1">{getProfileSurname(profile)}</h3>
                   </div>
                   
                   {/* <button
