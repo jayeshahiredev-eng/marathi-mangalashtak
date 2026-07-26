@@ -175,20 +175,12 @@ export default function AdminProfileView() {
               : '—'
           }
         👨 *वडिलांचे नाव:* ${val(profile.father_name)}
-        🎓 *शिक्षण:* ${val(profile.education)}
-        💼 *व्यवसाय:* ${val(profile.profession)}
-        📏 *उंची:* ${val(profile.height)}
-        🕉 *धर्म / जात:* ${val(profile.religion_caste)}
-        🌟 *राशी:* ${val(profile.rashi)}
-
         🏡 *पत्ता:*
         ${val(profile.address)}
-
         📞 *संपर्क क्रमांक:*
         ${val(profile.mobile_number)}
 
         ━━━━━━━━━━━━━━━━━━
-        अधिक माहितीसाठी संपर्क करा.
         मराठी मंगलाष्टक 💍`)
         }
         className="mt-3 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl font-bold"
