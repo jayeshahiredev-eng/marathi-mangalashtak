@@ -50,6 +50,7 @@ interface Profile {
   profile_id?: string;
   mobile_number?: string;
   address?: string;
+  city?: string;
   mama_surname?: string;
   is_premium?: boolean;
 }
@@ -251,7 +252,7 @@ export default function ProfileDetails() {
             <div>
               <h3 className="text-lg font-bold text-orange-600 border-b border-orange-100 pb-2 mb-4">👨‍👩‍👦 कौटुंबिक तपशील</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3.5 text-[15px] mb-4">
-                <p className="text-gray-600"><strong>पत्ता -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.address)}</span></p>
+                <p className="text-gray-600"><strong>गाव  -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.city)}</span></p>
                 <p className="text-gray-600"><strong>भावंडे -</strong> <span className="text-gray-900 font-semibold">{targetProfile.siblings ?? '—'}</span></p>
                 <p className="text-gray-600"><strong>मामा -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.mama_surname)}</span></p>
                 <p className="text-gray-600"><strong>नातेसंबंध -</strong> <span className="text-gray-900 font-semibold">{val(targetProfile.relatives)}</span></p>
