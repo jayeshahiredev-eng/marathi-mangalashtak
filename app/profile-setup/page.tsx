@@ -664,6 +664,10 @@ const handleModalClose = () => {
                   <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="new-password"/>
                 </div>
                 <div>
+                  <label className={labelClass}>लघूनाव <span className="text-gray-400 font-medium">(AI ने भरणारा / editable)</span></label>
+                  <input type="text" name="shortName" placeholder="उदा. पाटील" value={formData.shortName} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off" />
+                </div>
+                <div>
                   <label className={labelClass}>मोबाईल नंबर <span className="text-red-500">*</span></label>
                   <input type="tel" name="mobileNumber" placeholder="उदा. 98765*****" maxLength={10} value={formData.mobileNumber} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off" />
                 </div>
@@ -671,6 +675,10 @@ const handleModalClose = () => {
                 <div className="sm:col-span-2 xl:col-span-1">
                   <label className={labelClass}>पूर्ण पत्ता / सध्याचे ठिकाण (गांव, तालुका, जिल्हा) <span className="text-red-500">*</span></label>
                   <input type="text" name="address" placeholder="उदा. मु.पो. दाभाडी, तालुका मालेगाव, जिल्हा नाशिक" value={formData.address} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off"/>
+                </div>
+                <div>
+                  <label className={labelClass}>शहर / गाव <span className="text-gray-400 font-medium">(AI derived / editable)</span></label>
+                  <input type="text" name="city" placeholder="उदा. नाशिक" value={formData.city} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off" />
                 </div>
                 <div>
                   <label className={labelClass}>जन्म तारीख <span className="text-red-500">*</span></label>
@@ -742,6 +750,10 @@ const handleModalClose = () => {
                 <div>
                   <label className={labelClass}>मामा <span className="text-gray-400 font-medium">(ऐच्छिक)</span></label>
                   <textarea name="unclesMaternal" rows={3} onChange={handleInputChange} value={formData.unclesMaternal} className={`${inputClass} resize-y min-h-[88px]`} disabled={scanning} autoComplete="off" />
+                </div>
+                <div>
+                  <label className={labelClass}>मामा आडनाव <span className="text-gray-400 font-medium">(AI derived / editable)</span></label>
+                  <input type="text" name="mamaSurname" placeholder="उदा. पाटील" value={formData.mamaSurname} onChange={handleInputChange} className={inputClass} disabled={scanning} autoComplete="off" />
                 </div>
                 <div>
                   <label className={labelClass}>नातेसंबंध <span className="text-gray-400 font-medium">(ऐच्छिक)</span></label>
