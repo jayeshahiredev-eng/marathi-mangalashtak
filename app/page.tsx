@@ -42,7 +42,7 @@ interface Profile {
 
 const getProfilePhoto = (p: Profile) => p.profile_pic_url || p.avatar_url || null;
 const getProfileName = (p: Profile) => p.full_name?.trim() || '—';
-const getProfileSurname = (p: Profile) => p.surname?.trim() || p.short_name?.trim() || '—';
+const getProfileSurname = (p: Profile) => p.short_name?.trim() || '—';
 const getProfileCaste = (p: Profile) => p.caste?.trim() || p.religion?.trim() || p.religion_caste?.trim() || '—';
 const getProfileCity = (p: Profile) => p.city?.trim() || p.birth_place?.trim() || '—';
 const getProfileEducation = (p: Profile) => p.education?.trim() || '—';

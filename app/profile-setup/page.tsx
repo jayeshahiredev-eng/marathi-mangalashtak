@@ -55,7 +55,7 @@ export default function ProfileSetup() {
     gender: '',
     fullName: '',
     mobileNumber: '', 
-    address: '', // 🌟 नवीन अनिवार्य फील्ड
+    address: '', // 🌟 नवीन अनिवार्य फील्ड 
     dateOfBirth: '',
     birthTime: '',
     rashi: '',
@@ -72,6 +72,9 @@ export default function ProfileSetup() {
     unclesPaternal: '',
     unclesMaternal: '',
     relatives: '',
+    shortName: '',
+    city: '',
+    mamaSurname: '',
   });
 
   const [image, setImage] = useState<File | null>(null);
@@ -93,7 +96,7 @@ export default function ProfileSetup() {
       const { data, error } = await supabase
         .from('profiles')
         .select(
-          'gender, full_name, mobile_number, address, date_of_birth, birth_time, rashi, gotra, complexion, height, religion_caste, education, profession, father_name, father_occupation, mother_name, siblings, uncles_paternal, uncles_maternal, relatives, profile_pic_url, profile_id, id'
+          'gender, full_name, mobile_number, address, date_of_birth, birth_time, rashi, gotra, complexion, height, religion_caste, education, profession, father_name, father_occupation, mother_name, siblings, uncles_paternal, uncles_maternal, relatives, profile_pic_url, profile_id, city, short_name, mama_surname, id'
         )
         .eq('id', user.id)
         .single();
@@ -126,6 +129,9 @@ export default function ProfileSetup() {
           unclesPaternal: cleanDash(data.uncles_paternal),
           unclesMaternal: cleanDash(data.uncles_maternal),
           relatives: cleanDash(data.relatives),
+          shortName: cleanDash(data.short_name),
+          city: cleanDash(data.city),
+          mamaSurname: cleanDash(data.mama_surname),
         });
 
         if (data.profile_pic_url) {
@@ -197,6 +203,34 @@ export default function ProfileSetup() {
   //   }
   // };
 
+  const deriveShortName = (fullName: string) => {
+    const cleaned = fullName.replace(/\d+/g, '').trim();
+    const parts = cleaned.split(/\s+/).filter(Boolean);
+    return parts.length ? parts[parts.length - 1] : '';
+  };
+
+  const deriveMamaSurname = (maternalText: string) => {
+    const cleaned = maternalText
+      .replace(/\d+/g, '')
+      .replace(/[\r\n]/g, ' ')
+      .replace(/[,;]+/g, ' ')
+      .trim();
+    const parts = cleaned.split(/\s+/).filter(Boolean);
+    return parts.length ? parts[parts.length - 1] : '';
+  };
+
+  const deriveCityFromAddress = (address: string) => {
+    if (!address.trim()) return '';
+    const normalized = address.replace(/\n/g, ',').replace(/\s+/g, ' ').trim();
+    const segments = normalized.split(',').map(seg => seg.trim()).filter(Boolean);
+    if (segments.length === 0) return '';
+
+    const first = segments[0].replace(/^(मु\.पो\.|पो\.|गाव|ग्राम|नगर|शहर|तालुका|जिल्हा)\s*/i, '').trim();
+    if (first) return first;
+
+    return segments[0];
+  };
+
   const handleBiodataParse = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     
@@ -244,12 +278,21 @@ export default function ProfileSetup() {
       }
 
       if (result.data) {
+        const parsedFullName = result.data.fullName?.replace(/\d+/g, '').trim() || formData.fullName;
+        const parsedAddress = result.data.address || formData.address;
+        const derivedShort = result.data.shortName?.trim() || result.data.short_name?.trim() || deriveShortName(parsedFullName || '');
+        const derivedCity = result.data.city?.trim() || deriveCityFromAddress(parsedAddress || '');
+        const derivedMama = result.data.mamaSurname?.trim() || result.data.mama_surname?.trim() || deriveMamaSurname(result.data.unclesMaternal || result.data.uncles_maternal || formData.unclesMaternal);
+
         setFormData(prev => ({
           ...prev,
           ...result.data,
-          fullName: result.data.fullName?.replace(/\d+/g, '') || '',
+          fullName: parsedFullName,
           mobileNumber: result.data.mobileNumber || prev.mobileNumber,
-          address: result.data.address || prev.address,
+          address: parsedAddress,
+          shortName: derivedShort,
+          city: derivedCity,
+          mamaSurname: derivedMama,
         }));
         showMessage('बायोडाटा यशस्वीरित्या स्कॅन करून माहिती भरली गेली आहे! 🪄 कृपया एकदा तपासून घ्या.', 'success');
       } else {
@@ -433,6 +476,9 @@ export default function ProfileSetup() {
           full_name: formData.fullName.trim(),
           mobile_number: formData.mobileNumber.trim(),
           address: formData.address.trim(), // 🌟 पत्ता सेव्ह
+          city: fallbackDash(formData.city),
+          short_name: fallbackDash(formData.shortName),
+          mama_surname: fallbackDash(formData.mamaSurname),
           date_of_birth: formData.dateOfBirth,
           height: formData.height.trim(),
           religion_caste: formData.religionCaste.trim(),
