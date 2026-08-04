@@ -175,8 +175,6 @@ export default function AdminProfileView() {
               : '—'
           }
         👨 *वडिलांचे नाव:* ${val(profile.father_name)}
-        🏡 *पत्ता:*
-        ${val(profile.address)}
         📞 *संपर्क क्रमांक:*
         ${val(profile.mobile_number)}
 
