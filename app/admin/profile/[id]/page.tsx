@@ -174,7 +174,6 @@ export default function AdminProfileView() {
                 ) + ' वर्षे'
               : '—'
           }
-        👨 *वडिलांचे नाव:* ${val(profile.father_name)}
         📞 *संपर्क क्रमांक:*
         ${val(profile.mobile_number)}
 
